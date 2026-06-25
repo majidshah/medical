@@ -5,22 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.condition import Condition
 from app.services.audit import log_event
-from app.services.patient import get_patient_for_account
+from app.services.clinical import ClinicalResourceError, resolve_patient_or_404
 
-
-class ConditionError(Exception):
-    def __init__(self, detail: str, status_code: int = 400):
-        self.detail = detail
-        self.status_code = status_code
-
-
-async def resolve_patient_or_404(
-    session: AsyncSession, patient_id: uuid.UUID, account_id: uuid.UUID
-):
-    patient = await get_patient_for_account(session, patient_id, account_id)
-    if patient is None:
-        raise ConditionError("Patient not found", status_code=404)
-    return patient
+ConditionError = ClinicalResourceError
 
 
 async def create_condition(

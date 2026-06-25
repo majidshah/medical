@@ -249,6 +249,10 @@ class TestFHIREndpoint:
         assert fhir["onsetDateTime"] == "2023-06-01"
         assert fhir["note"][0]["text"] == "Controlled with medication"
 
+        from fhir.resources.condition import Condition as FHIRCondition
+
+        FHIRCondition(**fhir)
+
     async def test_fhir_without_code_has_no_coding(self, client: AsyncClient, auth_tokens):
         patient = await _create_patient(client, auth_tokens)
         create_resp = await client.post(

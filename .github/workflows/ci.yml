@@ -19,6 +19,26 @@ jobs:
       run:
         working-directory: backend
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql+asyncpg://ci:ci@localhost:5432/ci_db
+      JWT_SECRET_KEY: ci-dummy-secret-not-for-production-use
+      DEBUG: "true"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,14 +58,11 @@ jobs:
       - name: Format check (black)
         run: black --check app tests
 
+      - name: Run Alembic migrations
+        run: alembic upgrade head
+
       - name: Run tests
         run: python -m pytest tests -v
-        env:
-          # CI-only dummy values so config loads. Never real secrets.
-          # Real secrets live in GitHub repo settings -> Secrets, referenced by name.
-          DATABASE_URL: postgresql+asyncpg://ci:ci@localhost:5432/ci_db
-          JWT_SECRET_KEY: ci-dummy-secret-not-used-in-production
-          DEBUG: "true"
 
   # Frontend job — uncomment and adjust when slice with the React app lands.
   # frontend:

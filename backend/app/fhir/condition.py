@@ -1,55 +1,52 @@
-"""FHIR R4 Condition mapping layer.
-
-Maps between the conditions ORM model and a FHIR R4 Condition resource.
-All FHIR construction is centralised here — routers and services must not
-build FHIR dicts inline. Other clinical resources should follow this pattern.
-"""
+"""FHIR R4 Condition mapping layer using fhir.resources for schema validation."""
 
 from __future__ import annotations
 
 import uuid
 from typing import TYPE_CHECKING
 
+from fhir.resources.codeableconcept import CodeableConcept
+from fhir.resources.coding import Coding
+from fhir.resources.condition import Condition
+from fhir.resources.reference import Reference
+
 if TYPE_CHECKING:
     from app.models.condition import Condition as ConditionModel
 
 
 def to_fhir(condition: ConditionModel, patient_reference_id: uuid.UUID) -> dict:
-    resource: dict = {
-        "resourceType": "Condition",
+    coding_list = []
+    if condition.code:
+        coding_list.append(
+            Coding(
+                system=condition.code_system,
+                code=condition.code,
+                display=condition.display_name,
+            )
+        )
+
+    kwargs: dict = {
         "id": str(condition.id),
-        "subject": {"reference": f"Patient/{patient_reference_id}"},
-        "clinicalStatus": {
-            "coding": [
-                {
-                    "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
-                    "code": condition.clinical_status,
-                }
+        "subject": Reference(reference=f"Patient/{patient_reference_id}"),
+        "clinicalStatus": CodeableConcept(
+            coding=[
+                Coding(
+                    system="http://terminology.hl7.org/CodeSystem/condition-clinical",
+                    code=condition.clinical_status,
+                )
             ]
-        },
-        "code": _build_code(condition),
+        ),
+        "code": CodeableConcept(text=condition.display_name, coding=coding_list or None),
     }
 
     if condition.onset_date:
-        resource["onsetDateTime"] = condition.onset_date.isoformat()
+        kwargs["onsetDateTime"] = condition.onset_date.isoformat()
 
     if condition.abatement_date:
-        resource["abatementDateTime"] = condition.abatement_date.isoformat()
+        kwargs["abatementDateTime"] = condition.abatement_date.isoformat()
 
     if condition.notes:
-        resource["note"] = [{"text": condition.notes}]
+        kwargs["note"] = [{"text": condition.notes}]
 
-    return resource
-
-
-def _build_code(condition: ConditionModel) -> dict:
-    result: dict = {"text": condition.display_name}
-    if condition.code:
-        result["coding"] = [
-            {
-                "system": condition.code_system,
-                "code": condition.code,
-                "display": condition.display_name,
-            }
-        ]
-    return result
+    resource = Condition(**kwargs)
+    return resource.dict(exclude_none=True)

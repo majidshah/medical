@@ -102,7 +102,7 @@ async def _create_dependent_patient(
     relationship_to_account: str,
     date_of_birth,
 ) -> Patient:
-    guardian = await _get_patient_for_account(session, guardian_patient_id, account_id)
+    guardian = await get_patient_for_account(session, guardian_patient_id, account_id)
     if guardian is None:
         raise PatientError("Guardian patient not found", status_code=404)
     if not guardian.has_cnic:
@@ -187,7 +187,7 @@ async def get_patient(
     patient_id: uuid.UUID,
     account_id: uuid.UUID,
 ) -> Patient | None:
-    return await _get_patient_for_account(session, patient_id, account_id)
+    return await get_patient_for_account(session, patient_id, account_id)
 
 
 async def update_patient(
@@ -196,7 +196,7 @@ async def update_patient(
     account_id: uuid.UUID,
     **fields,
 ) -> Patient:
-    patient = await _get_patient_for_account(session, patient_id, account_id)
+    patient = await get_patient_for_account(session, patient_id, account_id)
     if patient is None:
         raise PatientError("Patient not found", status_code=404)
 
@@ -217,7 +217,7 @@ async def soft_delete_patient(
     patient_id: uuid.UUID,
     account_id: uuid.UUID,
 ) -> Patient:
-    patient = await _get_patient_for_account(session, patient_id, account_id)
+    patient = await get_patient_for_account(session, patient_id, account_id)
     if patient is None:
         raise PatientError("Patient not found", status_code=404)
 
@@ -245,7 +245,7 @@ async def search_patient_by_medical_id(
     return result.scalar_one_or_none()
 
 
-async def _get_patient_for_account(
+async def get_patient_for_account(
     session: AsyncSession,
     patient_id: uuid.UUID,
     account_id: uuid.UUID,

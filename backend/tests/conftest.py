@@ -10,7 +10,7 @@ from app.core.config import settings
 from app.db.base import Base
 from app.db.session import get_session
 from app.main import app
-from app.models import Account, AuditLog, RefreshToken  # noqa: F401
+from app.models import Account, AuditLog, Patient, RefreshToken  # noqa: F401
 
 _engine = create_async_engine(settings.database_url, echo=False, poolclass=NullPool)
 _session_factory = async_sessionmaker(_engine, class_=AsyncSession, expire_on_commit=False)

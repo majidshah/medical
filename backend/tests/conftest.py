@@ -1,3 +1,4 @@
+import uuid as _uuid
 from collections.abc import AsyncGenerator
 
 import pytest
@@ -15,6 +16,9 @@ from app.models import (  # noqa: F401
     Allergy,
     AuditLog,
     Condition,
+    EPIVaccine,
+    FamilyHistory,
+    Immunization,
     Medication,
     Patient,
     RefreshToken,
@@ -23,12 +27,35 @@ from app.models import (  # noqa: F401
 _engine = create_async_engine(settings.database_url, echo=False, poolclass=NullPool)
 _session_factory = async_sessionmaker(_engine, class_=AsyncSession, expire_on_commit=False)
 
+_SEED_TABLES = {"epi_vaccines"}
+
+_EPI_SEEDS = [
+    ("Bacillus Calmette-Guérin", "BCG", 1),
+    ("Oral Polio Vaccine", "OPV", 4),
+    ("Pentavalent Vaccine", "Penta", 3),
+    ("Pneumococcal Conjugate Vaccine", "PCV", 3),
+    ("Rotavirus Vaccine", "Rota", 2),
+    ("Inactivated Polio Vaccine", "IPV", 2),
+    ("Measles Vaccine", "Measles", 2),
+    ("Typhoid Conjugate Vaccine", "TCV", 1),
+]
+
 
 @pytest.fixture(scope="session", autouse=True)
 async def _setup_db():
     async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
+
+    async with _session_factory() as sess:
+        result = await sess.execute(text("SELECT count(*) FROM epi_vaccines"))
+        if result.scalar_one() == 0:
+            for name, short, doses in _EPI_SEEDS:
+                sess.add(
+                    EPIVaccine(id=_uuid.uuid4(), name=name, short_name=short, total_doses=doses)
+                )
+            await sess.commit()
+
     yield
     async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
@@ -40,7 +67,8 @@ async def _clean_tables():
     yield
     async with _engine.begin() as conn:
         for table in reversed(Base.metadata.sorted_tables):
-            await conn.execute(text(f"TRUNCATE TABLE {table.name} CASCADE"))
+            if table.name not in _SEED_TABLES:
+                await conn.execute(text(f"TRUNCATE TABLE {table.name} CASCADE"))
 
 
 @pytest.fixture

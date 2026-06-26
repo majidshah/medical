@@ -129,7 +129,7 @@ export function PatientSummaryPage() {
             {t("summary.recent_results")}
             {counts.reports > 0 && (
               <span className="ml-2 text-base text-muted font-sans">
-                ({counts.reports} {t("nav.patients").toLowerCase()})
+                ({counts.reports} {t("summary.reports_count")})
               </span>
             )}
           </h2>
@@ -138,10 +138,10 @@ export function PatientSummaryPage() {
               <table className="w-full text-base">
                 <thead>
                   <tr className="border-b border-muted/20 text-left">
-                    <th className="pb-2 font-medium">Test</th>
-                    <th className="pb-2 font-medium">Value</th>
-                    <th className="pb-2 font-medium">Date</th>
-                    <th className="pb-2 font-medium">Status</th>
+                    <th className="pb-2 font-medium">{t("summary.table_test")}</th>
+                    <th className="pb-2 font-medium">{t("summary.table_value")}</th>
+                    <th className="pb-2 font-medium">{t("summary.table_date")}</th>
+                    <th className="pb-2 font-medium">{t("summary.table_status")}</th>
                   </tr>
                 </thead>
                 <tbody>

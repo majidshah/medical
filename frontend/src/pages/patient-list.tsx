@@ -39,6 +39,8 @@ function AddPatientForm({
     onError: (err: Error) => {
       if (err instanceof ApiError && err.status === 409) {
         setError(t("patients.form.error_duplicate_cnic"));
+      } else if (err instanceof ApiError && err.status === 422) {
+        setError(err.detail);
       } else {
         setError(t("patients.form.error_generic"));
       }
@@ -53,13 +55,15 @@ function AddPatientForm({
       full_name: fullName,
       gender,
       relationship_to_account: relationship,
+      date_of_birth: dateOfBirth || undefined,
     };
 
-    if (dateOfBirth) {
-      (data as Record<string, unknown>).date_of_birth = dateOfBirth;
-    }
-
     if (idType === "cnic") {
+      const digits = cnic.replace(/-/g, "");
+      if (!/^\d{13}$/.test(digits)) {
+        setError(t("patients.form.error_cnic_format"));
+        return;
+      }
       data.cnic = cnic;
     } else {
       data.guardian_patient_id = guardianId;
@@ -162,7 +166,7 @@ function AddPatientForm({
             </label>
             {guardians.length === 0 ? (
               <p className="text-base text-muted">
-                {t("patients.form.id_cnic")}
+                {t("patients.form.no_guardians")}
               </p>
             ) : (
               <select

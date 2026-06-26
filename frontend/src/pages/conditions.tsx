@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ApiError } from "@/api/client";
@@ -17,6 +17,7 @@ import { Card } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { PatientNav } from "@/components/layout/patient-nav";
 
 const CLINICAL_STATUSES = [
   "active",
@@ -223,14 +224,7 @@ export function ConditionsPage() {
 
   return (
     <div>
-      <div className="mb-2">
-        <Link
-          to={`/patients/${patientId}`}
-          className="text-base text-teal hover:underline"
-        >
-          &larr; {t("conditions.back_to_summary")}
-        </Link>
-      </div>
+      <PatientNav patientId={patientId!} />
 
       <div className="flex items-center justify-between mb-6">
         <h1 className="font-serif text-2xl text-ink">

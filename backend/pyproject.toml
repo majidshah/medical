@@ -17,6 +17,7 @@ dependencies = [
     "email-validator>=2,<3",
     "fhir.resources>=7,<8",
     "python-multipart>=0.0.9,<1",
+    "reportlab>=4,<5",
 ]
 
 [project.optional-dependencies]

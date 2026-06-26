@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/layout/app-shell";
 import { AuthProvider } from "@/lib/auth-context";
 import { ProtectedRoute } from "@/lib/protected-route";
+import { ConditionsPage } from "@/pages/conditions";
 import { LoginPage } from "@/pages/login";
 import { PatientListPage } from "@/pages/patient-list";
 import { PatientSummaryPage } from "@/pages/patient-summary";
@@ -29,6 +30,10 @@ export function App() {
                 <Route
                   path="/patients/:patientId"
                   element={<PatientSummaryPage />}
+                />
+                <Route
+                  path="/patients/:patientId/conditions"
+                  element={<ConditionsPage />}
                 />
               </Route>
             </Route>

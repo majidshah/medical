@@ -66,6 +66,36 @@
     "table_date": "Date",
     "table_status": "Status"
   },
+  "conditions": {
+    "title": "Conditions",
+    "add": "Add condition",
+    "empty": "No conditions recorded. Add one.",
+    "onset": "Onset",
+    "back_to_summary": "Back to summary",
+    "confirm_delete": "Remove \"{{name}}\" from conditions?",
+    "status": {
+      "active": "Active",
+      "recurrence": "Recurrence",
+      "relapse": "Relapse",
+      "inactive": "Inactive",
+      "remission": "Remission",
+      "resolved": "Resolved"
+    },
+    "form": {
+      "add_title": "Add a condition",
+      "edit_title": "Edit condition",
+      "display_name": "Condition name",
+      "clinical_status": "Status",
+      "onset_date": "Onset date",
+      "abatement_date": "Abatement date",
+      "notes": "Notes",
+      "code": "SNOMED code (optional)",
+      "code_placeholder": "e.g. 38341003",
+      "add": "Add condition",
+      "save": "Save changes",
+      "error": "Could not save condition"
+    }
+  },
   "normality": {
     "in_range": "Normal",
     "below_low": "Below range",
@@ -78,6 +108,10 @@
   },
   "common": {
     "loading": "Loading...",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "edit": "Edit",
+    "delete": "Remove",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   }
 }

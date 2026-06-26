@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import { fetchPatientSummary } from "@/api/patients";
@@ -36,14 +36,22 @@ export function PatientSummaryPage() {
 
       <div className="space-y-6">
         <Card>
-          <h2 className="font-serif text-xl text-ink mb-4">
-            {t("summary.conditions")}
-            {counts.conditions > 0 && (
-              <span className="ml-2 text-base text-muted font-sans">
-                ({counts.conditions})
-              </span>
-            )}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-serif text-xl text-ink">
+              {t("summary.conditions")}
+              {counts.conditions > 0 && (
+                <span className="ml-2 text-base text-muted font-sans">
+                  ({counts.conditions})
+                </span>
+              )}
+            </h2>
+            <Link
+              to={`/patients/${patientId}/conditions`}
+              className="text-base text-teal hover:underline"
+            >
+              {t("summary.view_all")}
+            </Link>
+          </div>
           {active_conditions.length > 0 ? (
             <ul className="space-y-2">
               {active_conditions.map((c) => (

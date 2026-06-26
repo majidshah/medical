@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from app.api.v1.allergies import router as allergies_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.conditions import router as conditions_router
+from app.api.v1.export import router as export_router
 from app.api.v1.family_history import router as family_history_router
 from app.api.v1.files import router as files_router
 from app.api.v1.health import router as health_router
@@ -28,3 +29,4 @@ app.include_router(observations_router, prefix="/api/v1")
 app.include_router(files_router, prefix="/api/v1")
 app.include_router(lab_router, prefix="/api/v1")
 app.include_router(summary_router, prefix="/api/v1")
+app.include_router(export_router, prefix="/api/v1")

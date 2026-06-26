@@ -107,6 +107,32 @@ export async function apiUpload<T>(
   return res.json();
 }
 
+export async function apiBlob(path: string): Promise<Blob> {
+  const url = `${API_BASE}${path}`;
+  const headers: Record<string, string> = {};
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  }
+
+  let res = await fetch(url, { headers });
+
+  if (res.status === 401 && refreshToken) {
+    const refreshed = await attemptRefresh();
+    if (refreshed) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+      res = await fetch(url, { headers });
+    } else {
+      handleAuthFailure();
+    }
+  }
+
+  if (!res.ok) {
+    throw new ApiError(res.status, "Download failed");
+  }
+
+  return res.blob();
+}
+
 export class ApiError extends Error {
   constructor(
     public status: number,

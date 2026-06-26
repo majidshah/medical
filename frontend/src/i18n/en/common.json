@@ -23,7 +23,33 @@
     "empty": "Add your first family member",
     "add": "Add patient",
     "medical_id": "Medical ID",
-    "relationship": "Relationship"
+    "relationship": "Relationship",
+    "form": {
+      "title": "Add a family member",
+      "full_name": "Full name",
+      "date_of_birth": "Date of birth",
+      "gender": "Gender",
+      "gender_male": "Male",
+      "gender_female": "Female",
+      "gender_other": "Other",
+      "relationship_to_account": "Relationship to you",
+      "rel_self": "Self",
+      "rel_child": "Child",
+      "rel_spouse": "Spouse",
+      "rel_parent": "Parent",
+      "rel_other": "Other",
+      "id_type": "Identification",
+      "id_cnic": "Has CNIC",
+      "id_dependent": "Dependent (no CNIC)",
+      "cnic": "CNIC (13 digits, e.g. 42201-1234567-8)",
+      "guardian": "Guardian",
+      "submit": "Add patient",
+      "cancel": "Cancel",
+      "error_generic": "Could not add patient",
+      "error_duplicate_cnic": "A patient with this CNIC already exists",
+      "error_cnic_format": "CNIC must be 13 digits (e.g. 42201-1234567-8)",
+      "no_guardians": "Add a patient with a CNIC first to register dependents"
+    }
   },
   "summary": {
     "title": "Health Summary",
@@ -33,7 +59,42 @@
     "recent_results": "Recent Lab Results",
     "none_recorded": "None recorded",
     "no_allergies": "No known allergies",
-    "view_all": "View all"
+    "view_all": "View all",
+    "reports_count": "reports",
+    "table_test": "Test",
+    "table_value": "Value",
+    "table_date": "Date",
+    "table_status": "Status"
+  },
+  "conditions": {
+    "title": "Conditions",
+    "add": "Add condition",
+    "empty": "No conditions recorded. Add one.",
+    "onset": "Onset",
+    "back_to_summary": "Back to summary",
+    "confirm_delete": "Remove \"{{name}}\" from conditions?",
+    "status": {
+      "active": "Active",
+      "recurrence": "Recurrence",
+      "relapse": "Relapse",
+      "inactive": "Inactive",
+      "remission": "Remission",
+      "resolved": "Resolved"
+    },
+    "form": {
+      "add_title": "Add a condition",
+      "edit_title": "Edit condition",
+      "display_name": "Condition name",
+      "clinical_status": "Status",
+      "onset_date": "Onset date",
+      "abatement_date": "Abatement date",
+      "notes": "Notes",
+      "code": "SNOMED code (optional)",
+      "code_placeholder": "e.g. 38341003",
+      "add": "Add condition",
+      "save": "Save changes",
+      "error": "Could not save condition"
+    }
   },
   "normality": {
     "in_range": "Normal",
@@ -47,6 +108,10 @@
   },
   "common": {
     "loading": "Loading...",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "edit": "Edit",
+    "delete": "Remove",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
   }
 }

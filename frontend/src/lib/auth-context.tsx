@@ -6,10 +6,16 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { login as apiLogin, register as apiRegister } from "@/api/auth";
-import { clearTokens, getAccessToken, setTokens } from "@/api/client";
+import {
+  clearTokens,
+  getAccessToken,
+  setOnAuthFailure,
+  setTokens,
+} from "@/api/client";
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -27,10 +33,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsAuthenticated(!!getAccessToken());
   }, []);
+
+  useEffect(() => {
+    setOnAuthFailure(() => {
+      setIsAuthenticated(false);
+      queryClient.clear();
+      navigate("/login");
+    });
+  }, [queryClient, navigate]);
 
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);

@@ -2,6 +2,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 let accessToken: string | null = null;
 let refreshToken: string | null = null;
+let onAuthFailure: (() => void) | null = null;
 
 export function setTokens(access: string, refresh: string) {
   accessToken = access;
@@ -15,6 +16,10 @@ export function clearTokens() {
 
 export function getAccessToken() {
   return accessToken;
+}
+
+export function setOnAuthFailure(callback: () => void) {
+  onAuthFailure = callback;
 }
 
 async function attemptRefresh(): Promise<boolean> {
@@ -32,6 +37,11 @@ async function attemptRefresh(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+function handleAuthFailure() {
+  clearTokens();
+  onAuthFailure?.();
 }
 
 export async function api<T>(
@@ -54,6 +64,8 @@ export async function api<T>(
     if (refreshed) {
       headers["Authorization"] = `Bearer ${accessToken}`;
       res = await fetch(url, { ...options, headers });
+    } else {
+      handleAuthFailure();
     }
   }
 
@@ -76,7 +88,18 @@ export async function apiUpload<T>(
     headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
-  const res = await fetch(url, { method: "POST", headers, body: formData });
+  let res = await fetch(url, { method: "POST", headers, body: formData });
+
+  if (res.status === 401 && refreshToken) {
+    const refreshed = await attemptRefresh();
+    if (refreshed) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
+      res = await fetch(url, { method: "POST", headers, body: formData });
+    } else {
+      handleAuthFailure();
+    }
+  }
+
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new ApiError(res.status, body.detail || "Upload failed");

@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import { fetchPatientSummary } from "@/api/patients";
@@ -36,14 +36,22 @@ export function PatientSummaryPage() {
 
       <div className="space-y-6">
         <Card>
-          <h2 className="font-serif text-xl text-ink mb-4">
-            {t("summary.conditions")}
-            {counts.conditions > 0 && (
-              <span className="ml-2 text-base text-muted font-sans">
-                ({counts.conditions})
-              </span>
-            )}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-serif text-xl text-ink">
+              {t("summary.conditions")}
+              {counts.conditions > 0 && (
+                <span className="ml-2 text-base text-muted font-sans">
+                  ({counts.conditions})
+                </span>
+              )}
+            </h2>
+            <Link
+              to={`/patients/${patientId}/conditions`}
+              className="text-base text-teal hover:underline"
+            >
+              {t("summary.view_all")}
+            </Link>
+          </div>
           {active_conditions.length > 0 ? (
             <ul className="space-y-2">
               {active_conditions.map((c) => (
@@ -129,7 +137,7 @@ export function PatientSummaryPage() {
             {t("summary.recent_results")}
             {counts.reports > 0 && (
               <span className="ml-2 text-base text-muted font-sans">
-                ({counts.reports} {t("nav.patients").toLowerCase()})
+                ({counts.reports} {t("summary.reports_count")})
               </span>
             )}
           </h2>
@@ -138,10 +146,10 @@ export function PatientSummaryPage() {
               <table className="w-full text-base">
                 <thead>
                   <tr className="border-b border-muted/20 text-left">
-                    <th className="pb-2 font-medium">Test</th>
-                    <th className="pb-2 font-medium">Value</th>
-                    <th className="pb-2 font-medium">Date</th>
-                    <th className="pb-2 font-medium">Status</th>
+                    <th className="pb-2 font-medium">{t("summary.table_test")}</th>
+                    <th className="pb-2 font-medium">{t("summary.table_value")}</th>
+                    <th className="pb-2 font-medium">{t("summary.table_date")}</th>
+                    <th className="pb-2 font-medium">{t("summary.table_status")}</th>
                   </tr>
                 </thead>
                 <tbody>

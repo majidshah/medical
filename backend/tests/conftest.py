@@ -19,7 +19,9 @@ from app.models import (  # noqa: F401
     EPIVaccine,
     FamilyHistory,
     Immunization,
+    LifestyleObservation,
     Medication,
+    ObservationType,
     Patient,
     RefreshToken,
 )
@@ -27,7 +29,15 @@ from app.models import (  # noqa: F401
 _engine = create_async_engine(settings.database_url, echo=False, poolclass=NullPool)
 _session_factory = async_sessionmaker(_engine, class_=AsyncSession, expire_on_commit=False)
 
-_SEED_TABLES = {"epi_vaccines"}
+_SEED_TABLES = {"epi_vaccines", "observation_types"}
+
+_OBS_TYPE_SEEDS = [
+    ("smoking_status", "Smoking Status", "72166-2", "coded", None),
+    ("alcohol_use", "Alcohol Use", "74013-4", "coded", None),
+    ("exercise", "Physical Activity", "89555-7", "numeric", "min/week"),
+    ("sleep_duration", "Sleep Duration", "93832-4", "numeric", "h"),
+    ("other", "Other", None, "text", None),
+]
 
 _EPI_SEEDS = [
     ("Bacillus Calmette-Guérin", "BCG", 1),
@@ -53,6 +63,22 @@ async def _setup_db():
             for name, short, doses in _EPI_SEEDS:
                 sess.add(
                     EPIVaccine(id=_uuid.uuid4(), name=name, short_name=short, total_doses=doses)
+                )
+            await sess.commit()
+
+    async with _session_factory() as sess:
+        result = await sess.execute(text("SELECT count(*) FROM observation_types"))
+        if result.scalar_one() == 0:
+            for key, label, loinc, vtype, unit in _OBS_TYPE_SEEDS:
+                sess.add(
+                    ObservationType(
+                        id=_uuid.uuid4(),
+                        key=key,
+                        display_label=label,
+                        loinc_code=loinc,
+                        value_type=vtype,
+                        unit=unit,
+                    )
                 )
             await sess.commit()
 

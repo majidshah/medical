@@ -4,8 +4,10 @@ from app.api.v1.allergies import router as allergies_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.conditions import router as conditions_router
 from app.api.v1.family_history import router as family_history_router
+from app.api.v1.files import router as files_router
 from app.api.v1.health import router as health_router
 from app.api.v1.immunizations import router as immunizations_router
+from app.api.v1.lab import router as lab_router
 from app.api.v1.medications import router as medications_router
 from app.api.v1.observations import router as observations_router
 from app.api.v1.patients import router as patients_router
@@ -22,3 +24,5 @@ app.include_router(medications_router, prefix="/api/v1")
 app.include_router(immunizations_router, prefix="/api/v1")
 app.include_router(family_history_router, prefix="/api/v1")
 app.include_router(observations_router, prefix="/api/v1")
+app.include_router(files_router, prefix="/api/v1")
+app.include_router(lab_router, prefix="/api/v1")

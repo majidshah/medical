@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.core.config import settings
 from app.db.base import Base
-from app.models import Account, Allergy, AuditLog, Condition, EPIVaccine, FamilyHistory, Immunization, LifestyleObservation, Medication, ObservationType, Patient, RefreshToken  # noqa: F401
+from app.models import Account, Allergy, AuditLog, Condition, EPIVaccine, FamilyHistory, Immunization, LabReferenceRange, LabResult, LabTestCatalogue, LifestyleObservation, Medication, ObservationType, Patient, RefreshToken, Report, StoredFile  # noqa: F401
 
 config = context.config
 if config.config_file_name is not None:

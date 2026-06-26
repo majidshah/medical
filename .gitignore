@@ -49,3 +49,6 @@ backend/alembic/__pycache__/
 
 # Docker
 *.log
+
+# Uploads (local file storage)
+uploads/

@@ -284,7 +284,8 @@
     },
     "export": {
       "pdf": "Export PDF",
-      "fhir": "Export FHIR"
+      "fhir": "Export FHIR",
+      "error": "Export failed. Please try again."
     }
   },
   "normality": {

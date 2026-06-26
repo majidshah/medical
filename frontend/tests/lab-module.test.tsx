@@ -101,4 +101,13 @@ describe("LabReportsPage", () => {
     expect(screen.getByRole("button", { name: "Timeline" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Trends" })).toBeInTheDocument();
   });
+
+  it("shows error when export fails", async () => {
+    vi.mocked(labApi.exportPdf).mockRejectedValue(new Error("fail"));
+    renderLab();
+    const user = userEvent.setup();
+    await screen.findByText("No reports yet.");
+    await user.click(screen.getByRole("button", { name: "Export PDF" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Export failed. Please try again.");
+  });
 });

@@ -1,4 +1,4 @@
-import { api, apiUpload } from "./client";
+import { api, apiBlob, apiUpload } from "./client";
 
 export interface LabTest {
   id: string;
@@ -146,13 +146,7 @@ export async function uploadFile(patientId: string, file: File): Promise<StoredF
 }
 
 export async function downloadFileUrl(patientId: string, fileId: string): Promise<Blob> {
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-  const { getAccessToken } = await import("./client");
-  const res = await fetch(`${API_BASE}/api/v1/patients/${patientId}/files/${fileId}`, {
-    headers: { Authorization: `Bearer ${getAccessToken()}` },
-  });
-  if (!res.ok) throw new Error("Download failed");
-  return res.blob();
+  return apiBlob(`/api/v1/patients/${patientId}/files/${fileId}`);
 }
 
 export async function createReport(
@@ -227,21 +221,9 @@ export async function getLabTrend(
 }
 
 export async function exportPdf(patientId: string): Promise<Blob> {
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-  const { getAccessToken } = await import("./client");
-  const res = await fetch(`${API_BASE}/api/v1/patients/${patientId}/export/pdf`, {
-    headers: { Authorization: `Bearer ${getAccessToken()}` },
-  });
-  if (!res.ok) throw new Error("Export failed");
-  return res.blob();
+  return apiBlob(`/api/v1/patients/${patientId}/export/pdf`);
 }
 
 export async function exportFhir(patientId: string): Promise<Blob> {
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-  const { getAccessToken } = await import("./client");
-  const res = await fetch(`${API_BASE}/api/v1/patients/${patientId}/export/fhir`, {
-    headers: { Authorization: `Bearer ${getAccessToken()}` },
-  });
-  if (!res.ok) throw new Error("Export failed");
-  return res.blob();
+  return apiBlob(`/api/v1/patients/${patientId}/export/fhir`);
 }

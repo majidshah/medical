@@ -412,9 +412,11 @@ function LabTrendView({ patientId }: { patientId: string }) {
 function ExportButtons({ patientId }: { patientId: string }) {
   const { t } = useTranslation();
   const [exporting, setExporting] = useState<string | null>(null);
+  const [error, setError] = useState("");
 
   const handleExport = async (format: "pdf" | "fhir") => {
     setExporting(format);
+    setError("");
     try {
       const blob = format === "pdf" ? await exportPdf(patientId) : await exportFhir(patientId);
       const url = URL.createObjectURL(blob);
@@ -424,20 +426,21 @@ function ExportButtons({ patientId }: { patientId: string }) {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      // Error handled silently — the export may fail if patient has no data
+      setError(t("lab.export.error"));
     } finally {
       setExporting(null);
     }
   };
 
   return (
-    <div className="flex gap-3">
+    <div className="flex items-center gap-3">
       <Button variant="secondary" onClick={() => handleExport("pdf")} disabled={exporting !== null}>
         {exporting === "pdf" ? t("common.loading") : t("lab.export.pdf")}
       </Button>
       <Button variant="secondary" onClick={() => handleExport("fhir")} disabled={exporting !== null}>
         {exporting === "fhir" ? t("common.loading") : t("lab.export.fhir")}
       </Button>
+      {error && <span className="text-base text-amber" role="alert">{error}</span>}
     </div>
   );
 }

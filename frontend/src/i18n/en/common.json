@@ -1,3 +1,52 @@
 {
-  "app_name": "MedVault"
+  "app_name": "MedVault",
+  "login": {
+    "title": "Sign in to MedVault",
+    "email": "Email address",
+    "password": "Password",
+    "submit": "Sign in",
+    "error": "Email or password is incorrect",
+    "no_account": "Don't have an account?",
+    "register_link": "Create one"
+  },
+  "register": {
+    "title": "Create your account",
+    "email": "Email address",
+    "password": "Password (min 8 characters)",
+    "submit": "Create account",
+    "error_duplicate": "An account with this email already exists",
+    "has_account": "Already have an account?",
+    "login_link": "Sign in"
+  },
+  "patients": {
+    "title": "Your Family",
+    "empty": "Add your first family member",
+    "add": "Add patient",
+    "medical_id": "Medical ID",
+    "relationship": "Relationship"
+  },
+  "summary": {
+    "title": "Health Summary",
+    "conditions": "Active Conditions",
+    "medications": "Current Medications",
+    "allergies": "Allergies",
+    "recent_results": "Recent Lab Results",
+    "none_recorded": "None recorded",
+    "no_allergies": "No known allergies",
+    "view_all": "View all"
+  },
+  "normality": {
+    "in_range": "Normal",
+    "below_low": "Below range",
+    "above_high": "Above range",
+    "unknown": "Unknown"
+  },
+  "nav": {
+    "patients": "Patients",
+    "logout": "Sign out"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong"
+  }
 }

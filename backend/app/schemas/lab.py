@@ -147,3 +147,54 @@ class LabTestListResponse(BaseModel):
 
 class ReportDetailResponse(ReportResponse):
     results: list[ResultResponse]
+
+
+class NormalityResponse(BaseModel):
+    status: str
+    range_low: float | None = None
+    range_high: float | None = None
+    range_unit: str | None = None
+    range_applies_to: str | None = None
+    reason: str | None = None
+
+
+class EnrichedResultResponse(ResultResponse):
+    normality: NormalityResponse
+
+
+class EnrichedReportDetailResponse(ReportResponse):
+    results: list[EnrichedResultResponse]
+    file_ref: StoredFileResponse | None = None
+
+
+class TimelineEntry(BaseModel):
+    id: uuid.UUID
+    report_date: date
+    category: str
+    lab_name: str | None
+    result_count: int
+    has_out_of_range: bool
+
+
+class TimelineResponse(BaseModel):
+    items: list[TimelineEntry]
+    total: int
+    limit: int
+    offset: int
+
+
+class LabTrendPoint(BaseModel):
+    effective_date: date
+    value: float | None
+    unit: str | None
+    normality_status: str
+
+
+class LabTrendResponse(BaseModel):
+    test_key: str
+    test_display_name: str
+    chartable: bool
+    range_low: float | None = None
+    range_high: float | None = None
+    range_unit: str | None = None
+    points: list[LabTrendPoint]

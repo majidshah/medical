@@ -10,12 +10,16 @@ from app.db.session import get_session
 from app.fhir.observation import to_fhir
 from app.models.account import Account
 from app.schemas.lab import (
+    EnrichedReportDetailResponse,
+    EnrichedResultResponse,
     LabTestDetailResponse,
     LabTestListResponse,
     LabTestResponse,
+    LabTrendPoint,
+    LabTrendResponse,
+    NormalityResponse,
     ReferenceRangeResponse,
     ReportCreate,
-    ReportDetailResponse,
     ReportListResponse,
     ReportResponse,
     ReportUpdate,
@@ -23,14 +27,20 @@ from app.schemas.lab import (
     ResultListResponse,
     ResultResponse,
     ResultUpdate,
+    StoredFileResponse,
+    TimelineEntry,
+    TimelineResponse,
 )
 from app.services.lab import (
     LabError,
     create_report,
     create_result,
     get_catalogue_detail,
-    get_report,
+    get_enriched_report,
+    get_lab_trend,
     get_result,
+    get_result_normality,
+    get_timeline,
     list_catalogue,
     list_reports,
     list_results_for_report,
@@ -100,29 +110,43 @@ async def list_reports_endpoint(
 
 @router.get(
     "/patients/{patient_id}/reports/{report_id}",
-    response_model=ReportDetailResponse,
+    response_model=EnrichedReportDetailResponse,
 )
 async def get_report_endpoint(
     patient_id: uuid.UUID,
     report_id: uuid.UUID,
     account: Annotated[Account, Depends(get_current_account)],
     session: Annotated[AsyncSession, Depends(get_session)],
-) -> ReportDetailResponse:
+) -> EnrichedReportDetailResponse:
     try:
-        report = await get_report(session, report_id, patient_id, account.id)
+        report, enriched_results, file_ref = await get_enriched_report(
+            session, report_id, patient_id, account.id
+        )
     except LabError as e:
         raise HTTPException(status_code=e.status_code, detail=e.detail) from None
     if report is None:
         raise HTTPException(status_code=404, detail="Report not found")
 
-    try:
-        results = await list_results_for_report(session, report_id, patient_id, account.id)
-    except LabError as e:
-        raise HTTPException(status_code=e.status_code, detail=e.detail) from None
+    results_out = []
+    for r, n in enriched_results:
+        results_out.append(
+            EnrichedResultResponse(
+                **ResultResponse.model_validate(r).model_dump(),
+                normality=NormalityResponse(
+                    status=n.status,
+                    range_low=n.range_low,
+                    range_high=n.range_high,
+                    range_unit=n.range_unit,
+                    range_applies_to=n.range_applies_to,
+                    reason=n.reason,
+                ),
+            )
+        )
 
-    return ReportDetailResponse(
+    return EnrichedReportDetailResponse(
         **ReportResponse.model_validate(report).model_dump(),
-        results=[ResultResponse.model_validate(r) for r in results],
+        results=results_out,
+        file_ref=StoredFileResponse.model_validate(file_ref) if file_ref else None,
     )
 
 
@@ -312,4 +336,87 @@ async def get_catalogue_detail_endpoint(
     return LabTestDetailResponse(
         **LabTestResponse.model_validate(test).model_dump(),
         reference_ranges=[ReferenceRangeResponse.model_validate(r) for r in ranges],
+    )
+
+
+@router.get("/patients/{patient_id}/timeline", response_model=TimelineResponse)
+async def timeline_endpoint(
+    patient_id: uuid.UUID,
+    account: Annotated[Account, Depends(get_current_account)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    category: str | None = Query(default=None),
+    from_date: date | None = Query(default=None, alias="from"),
+    to_date: date | None = Query(default=None, alias="to"),
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+) -> TimelineResponse:
+    try:
+        entries, total = await get_timeline(
+            session,
+            patient_id,
+            account.id,
+            category=category,
+            from_date=from_date,
+            to_date=to_date,
+            limit=limit,
+            offset=offset,
+        )
+    except LabError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail) from None
+    return TimelineResponse(
+        items=[TimelineEntry(**e) for e in entries],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@router.get(
+    "/patients/{patient_id}/results/{result_id}/normality",
+    response_model=NormalityResponse,
+)
+async def normality_endpoint(
+    patient_id: uuid.UUID,
+    result_id: uuid.UUID,
+    account: Annotated[Account, Depends(get_current_account)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> NormalityResponse:
+    try:
+        n = await get_result_normality(session, result_id, patient_id, account.id)
+    except LabError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail) from None
+    return NormalityResponse(
+        status=n.status,
+        range_low=n.range_low,
+        range_high=n.range_high,
+        range_unit=n.range_unit,
+        range_applies_to=n.range_applies_to,
+        reason=n.reason,
+    )
+
+
+@router.get(
+    "/patients/{patient_id}/lab-trend",
+    response_model=LabTrendResponse,
+)
+async def lab_trend_endpoint(
+    patient_id: uuid.UUID,
+    account: Annotated[Account, Depends(get_current_account)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+    test: str = Query(alias="test"),
+    from_date: date | None = Query(default=None, alias="from"),
+    to_date: date | None = Query(default=None, alias="to"),
+) -> LabTrendResponse:
+    try:
+        data = await get_lab_trend(session, patient_id, account.id, test, from_date, to_date)
+    except LabError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.detail) from None
+    return LabTrendResponse(
+        test_key=data["test_key"],
+        test_display_name=data["test_display_name"],
+        chartable=data["chartable"],
+        range_low=data["range_low"],
+        range_high=data["range_high"],
+        range_unit=data["range_unit"],
+        points=[LabTrendPoint(**p) for p in data["points"]],
     )

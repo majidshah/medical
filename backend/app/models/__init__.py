@@ -5,7 +5,9 @@ from app.models.condition import Condition
 from app.models.epi_vaccine import EPIVaccine
 from app.models.family_history import FamilyHistory
 from app.models.immunization import Immunization
+from app.models.lifestyle_observation import LifestyleObservation
 from app.models.medication import Medication
+from app.models.observation_type import ObservationType
 from app.models.patient import Patient
 from app.models.refresh_token import RefreshToken
 
@@ -17,7 +19,9 @@ __all__ = [
     "EPIVaccine",
     "FamilyHistory",
     "Immunization",
+    "LifestyleObservation",
     "Medication",
+    "ObservationType",
     "Patient",
     "RefreshToken",
 ]

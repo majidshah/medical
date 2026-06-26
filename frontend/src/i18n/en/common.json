@@ -46,7 +46,9 @@
       "submit": "Add patient",
       "cancel": "Cancel",
       "error_generic": "Could not add patient",
-      "error_duplicate_cnic": "A patient with this CNIC already exists"
+      "error_duplicate_cnic": "A patient with this CNIC already exists",
+      "error_cnic_format": "CNIC must be 13 digits (e.g. 42201-1234567-8)",
+      "no_guardians": "Add a patient with a CNIC first to register dependents"
     }
   },
   "summary": {
@@ -57,7 +59,12 @@
     "recent_results": "Recent Lab Results",
     "none_recorded": "None recorded",
     "no_allergies": "No known allergies",
-    "view_all": "View all"
+    "view_all": "View all",
+    "reports_count": "reports",
+    "table_test": "Test",
+    "table_value": "Value",
+    "table_date": "Date",
+    "table_status": "Status"
   },
   "normality": {
     "in_range": "Normal",

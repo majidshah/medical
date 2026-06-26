@@ -84,6 +84,7 @@ export async function fetchPatientSummary(
 
 export async function createPatient(data: {
   full_name: string;
+  date_of_birth?: string;
   gender: string;
   relationship_to_account: string;
   cnic?: string;

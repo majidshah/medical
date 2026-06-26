@@ -18,5 +18,8 @@ class Settings(BaseSettings):
     jwt_access_token_expire_minutes: int = 15
     jwt_refresh_token_expire_days: int = 7
 
+    upload_dir: str = "./uploads"
+    max_upload_size_bytes: int = 10 * 1024 * 1024  # 10 MB
+
 
 settings = Settings()

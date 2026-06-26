@@ -19,17 +19,22 @@ from app.models import (  # noqa: F401
     EPIVaccine,
     FamilyHistory,
     Immunization,
+    LabReferenceRange,
+    LabResult,
+    LabTestCatalogue,
     LifestyleObservation,
     Medication,
     ObservationType,
     Patient,
     RefreshToken,
+    Report,
+    StoredFile,
 )
 
 _engine = create_async_engine(settings.database_url, echo=False, poolclass=NullPool)
 _session_factory = async_sessionmaker(_engine, class_=AsyncSession, expire_on_commit=False)
 
-_SEED_TABLES = {"epi_vaccines", "observation_types"}
+_SEED_TABLES = {"epi_vaccines", "observation_types", "lab_test_catalogue", "lab_reference_ranges"}
 
 _OBS_TYPE_SEEDS = [
     ("smoking_status", "Smoking Status", "72166-2", "coded", None),
@@ -37,6 +42,28 @@ _OBS_TYPE_SEEDS = [
     ("exercise", "Physical Activity", "89555-7", "numeric", "min/week"),
     ("sleep_duration", "Sleep Duration", "93832-4", "numeric", "h"),
     ("other", "Other", None, "text", None),
+]
+
+_LAB_RANGE_SEEDS = [
+    ("fasting_blood_glucose", "general", 70, 100, "mg/dL"),
+    ("hba1c", "general", 4.0, 5.6, "%"),
+    ("cbc_hemoglobin", "male", 13.5, 17.5, "g/dL"),
+    ("cbc_hemoglobin", "female", 12.0, 15.5, "g/dL"),
+    ("serum_creatinine", "male", 0.7, 1.3, "mg/dL"),
+    ("serum_creatinine", "female", 0.6, 1.1, "mg/dL"),
+    ("total_cholesterol", "general", None, 200, "mg/dL"),
+    ("tsh", "general", 0.4, 4.0, "mIU/L"),
+]
+
+_LAB_CATALOGUE_SEEDS = [
+    ("fasting_blood_glucose", "Fasting Blood Glucose", "1558-6", "lab", "blood", "mg/dL"),
+    ("hba1c", "HbA1c", "4548-4", "lab", "blood", "%"),
+    ("cbc_hemoglobin", "Hemoglobin", "718-7", "lab", "blood", "g/dL"),
+    ("serum_creatinine", "Serum Creatinine", "2160-0", "lab", "blood", "mg/dL"),
+    ("total_cholesterol", "Total Cholesterol", "2093-3", "lab", "blood", "mg/dL"),
+    ("tsh", "Thyroid Stimulating Hormone", "3016-3", "lab", "blood", "mIU/L"),
+    ("urinalysis", "Urinalysis", "24356-8", "lab", "urine", None),
+    ("chest_xray", "Chest X-Ray", None, "imaging", None, None),
 ]
 
 _EPI_SEEDS = [
@@ -80,6 +107,39 @@ async def _setup_db():
                         unit=unit,
                     )
                 )
+            await sess.commit()
+
+    async with _session_factory() as sess:
+        result = await sess.execute(text("SELECT count(*) FROM lab_test_catalogue"))
+        if result.scalar_one() == 0:
+            test_ids: dict[str, _uuid.UUID] = {}
+            for key, name, loinc, cat, specimen, unit in _LAB_CATALOGUE_SEEDS:
+                tid = _uuid.uuid4()
+                test_ids[key] = tid
+                sess.add(
+                    LabTestCatalogue(
+                        id=tid,
+                        key=key,
+                        display_name=name,
+                        loinc_code=loinc,
+                        category=cat,
+                        specimen=specimen,
+                        default_unit=unit,
+                    )
+                )
+            await sess.flush()
+            for test_key, applies, low, high, runit in _LAB_RANGE_SEEDS:
+                if test_key in test_ids:
+                    sess.add(
+                        LabReferenceRange(
+                            id=_uuid.uuid4(),
+                            test_id=test_ids[test_key],
+                            applies_to=applies,
+                            low=low,
+                            high=high,
+                            unit=runit,
+                        )
+                    )
             await sess.commit()
 
     yield

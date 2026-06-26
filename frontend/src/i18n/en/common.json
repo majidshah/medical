@@ -23,7 +23,31 @@
     "empty": "Add your first family member",
     "add": "Add patient",
     "medical_id": "Medical ID",
-    "relationship": "Relationship"
+    "relationship": "Relationship",
+    "form": {
+      "title": "Add a family member",
+      "full_name": "Full name",
+      "date_of_birth": "Date of birth",
+      "gender": "Gender",
+      "gender_male": "Male",
+      "gender_female": "Female",
+      "gender_other": "Other",
+      "relationship_to_account": "Relationship to you",
+      "rel_self": "Self",
+      "rel_child": "Child",
+      "rel_spouse": "Spouse",
+      "rel_parent": "Parent",
+      "rel_other": "Other",
+      "id_type": "Identification",
+      "id_cnic": "Has CNIC",
+      "id_dependent": "Dependent (no CNIC)",
+      "cnic": "CNIC (13 digits, e.g. 42201-1234567-8)",
+      "guardian": "Guardian",
+      "submit": "Add patient",
+      "cancel": "Cancel",
+      "error_generic": "Could not add patient",
+      "error_duplicate_cnic": "A patient with this CNIC already exists"
+    }
   },
   "summary": {
     "title": "Health Summary",

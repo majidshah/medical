@@ -1,0 +1,43 @@
+{
+  "name": "medvault-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5",
+    "i18next": "^25",
+    "react": "^19",
+    "react-dom": "^19",
+    "react-i18next": "^15",
+    "react-router-dom": "^7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9",
+    "@testing-library/jest-dom": "^6",
+    "@testing-library/react": "^16",
+    "@testing-library/user-event": "^14",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4",
+    "autoprefixer": "^10",
+    "eslint": "^9",
+    "eslint-plugin-react-hooks": "^5",
+    "eslint-plugin-react-refresh": "^0.4",
+    "globals": "^16",
+    "jsdom": "^26",
+    "postcss": "^8",
+    "tailwindcss": "^3",
+    "typescript": "^5.8",
+    "typescript-eslint": "^8",
+    "vite": "^6",
+    "vitest": "^3"
+  }
+}

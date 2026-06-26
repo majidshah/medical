@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.allergies import router as allergies_router
 from app.api.v1.auth import router as auth_router
@@ -16,6 +17,15 @@ from app.api.v1.summary import router as summary_router
 from app.core.config import settings
 
 app = FastAPI(title=settings.app_name, docs_url="/docs", openapi_url="/openapi.json")
+
+if settings.cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[o.strip() for o in settings.cors_origins.split(",")],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(auth_router, prefix="/api/v1")

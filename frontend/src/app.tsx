@@ -6,7 +6,9 @@ import { AuthProvider } from "@/lib/auth-context";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { AllergiesPage } from "@/pages/allergies";
 import { ConditionsPage } from "@/pages/conditions";
+import { FamilyHistoryPage } from "@/pages/family-history";
 import { ImmunizationsPage } from "@/pages/immunizations";
+import { LifestylePage } from "@/pages/lifestyle";
 import { LoginPage } from "@/pages/login";
 import { MedicationsPage } from "@/pages/medications";
 import { PatientListPage } from "@/pages/patient-list";
@@ -49,6 +51,14 @@ export function App() {
                 <Route
                   path="/patients/:patientId/immunizations"
                   element={<ImmunizationsPage />}
+                />
+                <Route
+                  path="/patients/:patientId/family-history"
+                  element={<FamilyHistoryPage />}
+                />
+                <Route
+                  path="/patients/:patientId/lifestyle"
+                  element={<LifestylePage />}
                 />
               </Route>
             </Route>

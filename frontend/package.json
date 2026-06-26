@@ -17,7 +17,8 @@
     "react": "^19",
     "react-dom": "^19",
     "react-i18next": "^15",
-    "react-router-dom": "^7"
+    "react-router-dom": "^7",
+    "recharts": "^3.9.0"
   },
   "devDependencies": {
     "@eslint/js": "^9",

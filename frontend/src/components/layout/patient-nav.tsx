@@ -18,6 +18,14 @@ export function PatientNav({ patientId }: PatientNavProps) {
       to: `/patients/${patientId}/immunizations`,
       label: t("immunizations.title"),
     },
+    {
+      to: `/patients/${patientId}/family-history`,
+      label: t("family_history.title"),
+    },
+    {
+      to: `/patients/${patientId}/lifestyle`,
+      label: t("lifestyle.title"),
+    },
   ];
 
   return (

@@ -175,6 +175,66 @@
       "error": "Could not save immunization"
     }
   },
+  "family_history": {
+    "title": "Family History",
+    "add": "Add family history",
+    "empty": "No family history recorded. Add one.",
+    "confirm_delete": "Remove \"{{name}}\" from family history?",
+    "onset_age": "Onset age",
+    "deceased_label": "Deceased",
+    "relationship": {
+      "mother": "Mother", "father": "Father", "brother": "Brother", "sister": "Sister",
+      "grandfather-paternal": "Grandfather (paternal)", "grandmother-paternal": "Grandmother (paternal)",
+      "grandfather-maternal": "Grandfather (maternal)", "grandmother-maternal": "Grandmother (maternal)",
+      "son": "Son", "daughter": "Daughter", "other": "Other"
+    },
+    "form": {
+      "add_title": "Add family history",
+      "edit_title": "Edit family history",
+      "relationship": "Relationship",
+      "condition": "Condition",
+      "code": "SNOMED code (optional)",
+      "onset_age": "Age of onset",
+      "deceased": "Deceased",
+      "notes": "Notes",
+      "add": "Add family history",
+      "save": "Save changes",
+      "error": "Could not save family history"
+    }
+  },
+  "lifestyle": {
+    "title": "Lifestyle",
+    "add": "Record observation",
+    "empty": "No observations recorded.",
+    "confirm_delete": "Remove this observation?",
+    "all_types": "All types",
+    "show_trend": "Show trend",
+    "hide_trend": "Hide trend",
+    "form": {
+      "add_title": "Record an observation",
+      "edit_title": "Edit observation",
+      "type": "Observation type",
+      "date": "Date",
+      "value_numeric": "Value",
+      "value_coded": "Value",
+      "value_text": "Value",
+      "unit": "Unit",
+      "notes": "Notes",
+      "add": "Record",
+      "save": "Save changes",
+      "error": "Could not save observation"
+    }
+  },
+  "trend": {
+    "empty": "No data recorded for this type yet.",
+    "not_chartable": "This observation type is not numeric and cannot be charted. Values are shown below.",
+    "show_table": "Show data table",
+    "chart_label": "Trend chart for {{title}}",
+    "table_date": "Date",
+    "table_value": "Value",
+    "range_low": "Low range",
+    "range_high": "High range"
+  },
   "normality": {
     "in_range": "Normal",
     "below_low": "Below range",

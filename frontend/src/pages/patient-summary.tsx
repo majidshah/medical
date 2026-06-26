@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchPatientSummary } from "@/api/patients";
 import { Card } from "@/components/ui/card";
 import { NormalityBadge } from "@/components/ui/normality-badge";
+import { PatientNav } from "@/components/layout/patient-nav";
 
 export function PatientSummaryPage() {
   const { t } = useTranslation();
@@ -26,6 +27,7 @@ export function PatientSummaryPage() {
 
   return (
     <div>
+      <PatientNav patientId={patientId!} />
       <div className="mb-8">
         <h1 className="font-serif text-2xl text-ink">{patient.full_name}</h1>
         <p className="text-base text-muted">

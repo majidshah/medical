@@ -8,6 +8,7 @@ import { AllergiesPage } from "@/pages/allergies";
 import { ConditionsPage } from "@/pages/conditions";
 import { FamilyHistoryPage } from "@/pages/family-history";
 import { ImmunizationsPage } from "@/pages/immunizations";
+import { LabReportsPage } from "@/pages/lab-reports";
 import { LifestylePage } from "@/pages/lifestyle";
 import { LoginPage } from "@/pages/login";
 import { MedicationsPage } from "@/pages/medications";
@@ -59,6 +60,10 @@ export function App() {
                 <Route
                   path="/patients/:patientId/lifestyle"
                   element={<LifestylePage />}
+                />
+                <Route
+                  path="/patients/:patientId/reports"
+                  element={<LabReportsPage />}
                 />
               </Route>
             </Route>

@@ -235,6 +235,58 @@
     "range_low": "Low range",
     "range_high": "High range"
   },
+  "lab": {
+    "title": "Lab & Imaging",
+    "add_report": "New report",
+    "category": { "lab": "Lab", "imaging": "Imaging" },
+    "tabs": { "timeline": "Timeline", "trends": "Trends" },
+    "form": {
+      "create_report": "Create a report",
+      "category": "Category",
+      "report_date": "Report date",
+      "lab_name": "Lab / facility name",
+      "file": "Upload file (optional)",
+      "create": "Create report",
+      "add_result": "Add a result",
+      "search_test": "Search catalogue",
+      "search_placeholder": "Type to search tests...",
+      "selected": "Selected test",
+      "display_name": "Test name",
+      "numeric": "Numeric",
+      "text_value": "Text",
+      "value": "Value",
+      "unit": "Unit",
+      "effective_date": "Result date",
+      "notes": "Notes",
+      "add_result_btn": "Add result",
+      "error": "Could not save"
+    },
+    "upload": {
+      "hint": "PNG, JPEG, or PDF — max 10 MB",
+      "type_error": "File type not allowed. Use PNG, JPEG, or PDF.",
+      "size_error": "File exceeds 10 MB limit."
+    },
+    "detail": {
+      "title": "Report Detail",
+      "file": "Uploaded File",
+      "results": "Results"
+    },
+    "timeline": {
+      "all": "All categories",
+      "empty": "No reports yet.",
+      "results": "results",
+      "back": "Back to timeline",
+      "confirm_delete": "Delete this report and its results?"
+    },
+    "trend": {
+      "select_test": "Select test",
+      "choose": "Choose a test..."
+    },
+    "export": {
+      "pdf": "Export PDF",
+      "fhir": "Export FHIR"
+    }
+  },
   "normality": {
     "in_range": "Normal",
     "below_low": "Below range",

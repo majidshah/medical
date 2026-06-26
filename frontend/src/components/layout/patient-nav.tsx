@@ -26,6 +26,10 @@ export function PatientNav({ patientId }: PatientNavProps) {
       to: `/patients/${patientId}/lifestyle`,
       label: t("lifestyle.title"),
     },
+    {
+      to: `/patients/${patientId}/reports`,
+      label: t("lab.title"),
+    },
   ];
 
   return (

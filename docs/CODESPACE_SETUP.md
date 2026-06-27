@@ -1,179 +1,142 @@
 # Codespace Local Dev Setup
 
-Step-by-step instructions to run MedVault (backend + frontend) in a GitHub
-Codespace. All commands assume you're in `/workspaces/medical`.
+All commands assume you're in `/workspaces/medical`.
 
 ---
 
-## 1. Start PostgreSQL
-
-Postgres 16 is pre-installed in the Codespace. Start it and create the database:
+## Quick start (one command)
 
 ```bash
-# Start the cluster (may already be running)
-sudo su - postgres -c "pg_ctlcluster 16 main start"
+./scripts/dev-start.sh
+```
 
-# Create user and database
+This script is **idempotent** — safe to run at the start of every session, after
+a rebuild, or whenever things look broken. It:
+
+1. Starts PostgreSQL (if not running)
+2. Creates the `medvault` user and database (if missing), resets the password
+3. Creates `backend/.env` from template (if missing)
+4. Installs backend Python dependencies
+5. Runs `alembic upgrade head` (creates/updates all tables)
+6. Installs frontend npm dependencies (if needed)
+7. Creates `frontend/.env` from template (if missing)
+8. Prints the env values you need to set for the Codespace URLs
+
+After the script finishes, follow the printed instructions to set `CORS_ORIGINS`
+and `VITE_API_BASE_URL`, then start the servers.
+
+---
+
+## Manual steps (if you prefer)
+
+### 1. Start PostgreSQL
+
+```bash
+sudo su - postgres -c "pg_ctlcluster 16 main start"
+```
+
+### 2. Create user and database
+
+```bash
 sudo su - postgres -c "psql -c \"CREATE USER medvault WITH PASSWORD 'medvault';\""
 sudo su - postgres -c "psql -c \"CREATE DATABASE medvault OWNER medvault;\""
-sudo su - postgres -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE medvault TO medvault;\""
 ```
 
-Verify:
+If the user/db already exist, these will error harmlessly. To reset the password:
+
 ```bash
-pg_isready -h localhost -p 5432
-# → localhost:5432 - accepting connections
+sudo su - postgres -c "psql -c \"ALTER USER medvault WITH PASSWORD 'medvault';\""
 ```
 
----
-
-## 2. Backend setup
-
-### Install dependencies
+### 3. Backend setup
 
 ```bash
 cd backend
+cp .env.example .env     # edit CORS_ORIGINS for your Codespace
 pip install -e ".[dev]"
-```
-
-### Configure environment
-
-Copy the template and edit if needed:
-
-```bash
-cp ../.env.example .env
-```
-
-The defaults work for local dev. Key values:
-
-| Variable | Value | Notes |
-|----------|-------|-------|
-| `DATABASE_URL` | `postgresql+asyncpg://medvault:medvault@localhost:5432/medvault` | Must match the user/db created above |
-| `JWT_SECRET_KEY` | `change-me-to-a-random-secret` | Any string; don't use this in production |
-| `CORS_ORIGINS` | `https://<codespace-name>-5173.app.github.dev` | The forwarded frontend URL (see below) |
-
-For the Codespace, set `CORS_ORIGINS` to the forwarded port-5173 URL:
-
-```bash
-# Find your codespace name
-echo $CODESPACE_NAME
-# Example: fictional-guide-jj5grwgvvr5cjjjq
-
-# Set in .env:
-CORS_ORIGINS=https://fictional-guide-jj5grwgvvr5cjjjq-5173.app.github.dev
-```
-
-### Run migrations
-
-```bash
-cd backend
 alembic upgrade head
 ```
 
-### Start the backend
-
-```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### Make port 8000 public
-
-In the Codespace **Ports** tab, find port 8000 and set its visibility to **Public**.
-This is required so the frontend (on port 5173) can reach the API via the forwarded URL.
-
-Verify: open `https://<codespace-name>-8000.app.github.dev/api/v1/health` in a browser.
-
----
-
-## 3. Frontend setup
-
-### Install dependencies
+### 4. Frontend setup
 
 ```bash
 cd frontend
+cp .env.example .env     # edit VITE_API_BASE_URL for your Codespace
 npm install
 ```
 
-### Configure environment
+### 5. Configure Codespace URLs
 
+Find your codespace name:
 ```bash
-cp .env.example .env
+echo $CODESPACE_NAME
 ```
 
-Set `VITE_API_BASE_URL` to the backend's forwarded URL (**no** `/api/v1` suffix, **no**
-trailing slash):
-
-```bash
-# In frontend/.env:
-VITE_API_BASE_URL=https://fictional-guide-jj5grwgvvr5cjjjq-8000.app.github.dev
+Set in `backend/.env`:
+```
+CORS_ORIGINS=https://<codespace-name>-5173.app.github.dev
 ```
 
-### Start the frontend
-
-```bash
-npm run dev
+Set in `frontend/.env`:
+```
+VITE_API_BASE_URL=https://<codespace-name>-8000.app.github.dev
 ```
 
-Open the forwarded port-5173 URL in your browser:
-`https://<codespace-name>-5173.app.github.dev`
+**Make port 8000 PUBLIC** in the Codespace Ports tab.
+
+### 6. Start servers
+
+```bash
+# Terminal 1 — Backend
+cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+# Terminal 2 — Frontend
+cd frontend && npm run dev
+```
+
+Open `https://<codespace-name>-5173.app.github.dev` in your browser.
 
 ---
 
-## 4. Verify the stack
+## After a Codespace rebuild
 
-1. Open the frontend URL in your browser.
-2. Click "Create one" to register a new account.
-3. After registration, you'll be logged in and see the patient list (empty).
-4. The backend health endpoint should return:
-   ```
-   GET /api/v1/health → {"status": "healthy", "service": "MedVault API"}
-   ```
+Run `./scripts/dev-start.sh` — it handles everything. Your `.env` files survive
+if the workspace volume is preserved. If not, the script recreates them from
+the committed `.env.example` templates.
 
----
-
-## 5. Run tests
-
-```bash
-# Backend (from backend/)
-DATABASE_URL="postgresql+asyncpg://medvault:medvault@localhost:5432/medvault" python -m pytest tests/ -v
-
-# Frontend (from frontend/)
-npm test
-```
+**Data**: if Postgres data was wiped by the rebuild, `alembic upgrade head`
+recreates all tables (empty). If the data survived, Alembic says "already at head."
 
 ---
 
-## 6. Lint
+## Running tests
 
 ```bash
 # Backend
-cd backend && ruff check app/ tests/ && black --check app/ tests/
+cd backend
+DATABASE_URL="postgresql+asyncpg://medvault:medvault@localhost:5432/medvault" python -m pytest tests/ -v
 
 # Frontend
-cd frontend && npx eslint .
+cd frontend
+npm test
 ```
 
 ---
 
 ## Environment variable reference
 
-### Backend (`.env` in repo root or `backend/`)
+### Backend (`backend/.env`)
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `DATABASE_URL` | Yes | `postgresql+asyncpg://medvault:medvault@localhost:5432/medvault` | Async Postgres connection string |
-| `JWT_SECRET_KEY` | Yes | `change-me-to-a-random-secret` | JWT signing key |
-| `JWT_ALGORITHM` | No | `HS256` | JWT algorithm |
-| `JWT_ACCESS_TOKEN_EXPIRE_MINUTES` | No | `15` | Access token lifetime |
-| `JWT_REFRESH_TOKEN_EXPIRE_DAYS` | No | `7` | Refresh token lifetime |
-| `CORS_ORIGINS` | No | `""` (disabled) | Comma-separated allowed origins |
-| `UPLOAD_DIR` | No | `./uploads` | Local file storage directory |
-| `MAX_UPLOAD_SIZE_BYTES` | No | `10485760` (10 MB) | Max upload file size |
-| `APP_NAME` | No | `MedVault` | Application name |
-| `DEBUG` | No | `false` | Debug mode |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DATABASE_URL` | `postgresql+asyncpg://medvault:medvault@localhost:5432/medvault` | Async Postgres connection |
+| `JWT_SECRET_KEY` | `change-me-to-a-random-secret` | JWT signing key |
+| `CORS_ORIGINS` | `http://localhost:5173` | Comma-separated allowed origins |
+| `UPLOAD_DIR` | `./uploads` | Local file storage directory |
+| `MAX_UPLOAD_SIZE_BYTES` | `10485760` (10 MB) | Max upload file size |
 
 ### Frontend (`frontend/.env`)
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `VITE_API_BASE_URL` | Yes | `http://localhost:8000` | Backend base URL (no `/api/v1`, no trailing slash) |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `VITE_API_BASE_URL` | `http://localhost:8000` | Backend URL (no `/api/v1`, no trailing slash) |

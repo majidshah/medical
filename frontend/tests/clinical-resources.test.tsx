@@ -8,6 +8,7 @@ import * as allergiesApi from "@/api/allergies";
 import * as medicationsApi from "@/api/medications";
 import * as immunizationsApi from "@/api/immunizations";
 import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { AllergiesPage } from "@/pages/allergies";
 import { MedicationsPage } from "@/pages/medications";
 import { ImmunizationsPage } from "@/pages/immunizations";
@@ -38,11 +39,11 @@ function renderPage(path: string, element: React.ReactElement) {
   return render(
     <QueryClientProvider client={qc}>
       <MemoryRouter initialEntries={[path]}>
-        <AuthProvider>
+        <ThemeProvider><AuthProvider>
           <Routes>
             <Route path={path.replace("p1", ":patientId")} element={element} />
           </Routes>
-        </AuthProvider>
+        </AuthProvider></ThemeProvider>
       </MemoryRouter>
     </QueryClientProvider>,
   );

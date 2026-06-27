@@ -63,7 +63,7 @@ export function FamilyHistoryPage() {
                 </span>
               )}
               {fh.deceased && (
-                <span className="text-base text-amber font-medium">
+                <span className="text-base text-status-warning font-medium">
                   {t("family_history.deceased_label")}
                 </span>
               )}
@@ -79,7 +79,7 @@ export function FamilyHistoryPage() {
               <select
                 value={(values.relationship as string) || "mother"}
                 onChange={(e) => onChange("relationship", e.target.value)}
-                className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+                className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
               >
                 {RELATIONSHIPS.map((r) => (
                   <option key={r} value={r}>{t(`family_history.relationship.${r}`)}</option>
@@ -110,7 +110,7 @@ export function FamilyHistoryPage() {
                   type="checkbox"
                   checked={(values.deceased as boolean) || false}
                   onChange={(e) => onChange("deceased", e.target.checked)}
-                  className="accent-teal"
+                  style={{ accentColor: "var(--accent)" }}
                 />
                 {t("family_history.form.deceased")}
               </label>

@@ -13,6 +13,7 @@ from app.api.v1.lab import router as lab_router
 from app.api.v1.medications import router as medications_router
 from app.api.v1.observations import router as observations_router
 from app.api.v1.patients import router as patients_router
+from app.api.v1.preferences import router as preferences_router
 from app.api.v1.summary import router as summary_router
 from app.core.config import settings
 
@@ -40,3 +41,4 @@ app.include_router(files_router, prefix="/api/v1")
 app.include_router(lab_router, prefix="/api/v1")
 app.include_router(summary_router, prefix="/api/v1")
 app.include_router(export_router, prefix="/api/v1")
+app.include_router(preferences_router, prefix="/api/v1")

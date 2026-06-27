@@ -16,6 +16,7 @@ import {
   setOnAuthFailure,
   setTokens,
 } from "@/api/client";
+import { useTheme } from "@/lib/theme-context";
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const theme = useTheme();
 
   useEffect(() => {
     setIsAuthenticated(!!getAccessToken());
@@ -43,9 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setOnAuthFailure(() => {
       setIsAuthenticated(false);
       queryClient.clear();
+      theme.resetToDefaults();
       navigate("/login");
     });
-  }, [queryClient, navigate]);
+  }, [queryClient, navigate, theme]);
 
   const login = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
@@ -53,10 +56,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const tokens = await apiLogin(email, password);
       setTokens(tokens.access_token, tokens.refresh_token);
       setIsAuthenticated(true);
+      await theme.loadFromAccount();
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [theme]);
 
   const register = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
@@ -65,16 +69,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const tokens = await apiLogin(email, password);
       setTokens(tokens.access_token, tokens.refresh_token);
       setIsAuthenticated(true);
+      await theme.loadFromAccount();
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [theme]);
 
   const logout = useCallback(() => {
     clearTokens();
     setIsAuthenticated(false);
     queryClient.clear();
-  }, [queryClient]);
+    theme.resetToDefaults();
+  }, [queryClient, theme]);
 
   return (
     <AuthContext.Provider

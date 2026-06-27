@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as labApi from "@/api/lab";
 import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { LabReportsPage } from "@/pages/lab-reports";
 import "@/i18n";
 
@@ -30,11 +31,11 @@ function renderLab() {
   return render(
     <QueryClientProvider client={qc}>
       <MemoryRouter initialEntries={["/patients/p1/reports"]}>
-        <AuthProvider>
+        <ThemeProvider><AuthProvider>
           <Routes>
             <Route path="/patients/:patientId/reports" element={<LabReportsPage />} />
           </Routes>
-        </AuthProvider>
+        </AuthProvider></ThemeProvider>
       </MemoryRouter>
     </QueryClientProvider>,
   );

@@ -124,7 +124,7 @@ export function ResourcePage<TItem, TFormData>({
     return <p className="text-muted text-center py-12">{t("common.loading")}</p>;
   }
   if (error) {
-    return <p className="text-amber text-center py-12">{t("common.error")}</p>;
+    return <p className="text-status-warning text-center py-12">{t("common.error")}</p>;
   }
 
   const items = data?.items || [];
@@ -154,7 +154,7 @@ export function ResourcePage<TItem, TFormData>({
           <form onSubmit={handleSubmit} className="space-y-4">
             {config.renderFormFields(formValues as Partial<TFormData>, handleFieldChange, t)}
             {formError && (
-              <p className="text-base text-amber" role="alert">
+              <p className="text-base text-status-warning" role="alert">
                 {formError}
               </p>
             )}
@@ -194,13 +194,13 @@ export function ResourcePage<TItem, TFormData>({
                 <div className="flex gap-2 ml-4 shrink-0">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="text-base text-teal hover:underline"
+                    className="text-base text-accent hover:underline"
                   >
                     {t("common.edit")}
                   </button>
                   <button
                     onClick={() => setDeleting(item)}
-                    className="text-base text-amber hover:underline"
+                    className="text-base text-status-warning hover:underline"
                   >
                     {t("common.delete")}
                   </button>

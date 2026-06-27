@@ -52,3 +52,4 @@ backend/alembic/__pycache__/
 
 # Uploads (local file storage)
 uploads/
+frontend/.vite/

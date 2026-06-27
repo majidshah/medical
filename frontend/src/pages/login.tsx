@@ -35,12 +35,12 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-paper flex items-center justify-center px-4">
+    <div className="min-h-screen bg-page flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="font-serif text-2xl text-teal text-center mb-8">
+        <h1 className="font-serif text-2xl text-accent text-center mb-8">
           {t("login.title")}
         </h1>
-        <form onSubmit={handleSubmit} className="bg-surface rounded-lg border border-muted/20 p-6 shadow-sm">
+        <form onSubmit={handleSubmit} className="bg-surface rounded-lg border border-border-light p-6 shadow-sm">
           <Input
             label={t("login.email")}
             type="email"
@@ -58,7 +58,7 @@ export function LoginPage() {
             autoComplete="current-password"
           />
           {error && (
-            <p className="mb-4 text-base text-amber" role="alert">
+            <p className="mb-4 text-base text-status-warning" role="alert">
               {error}
             </p>
           )}
@@ -67,7 +67,7 @@ export function LoginPage() {
           </Button>
           <p className="mt-4 text-center text-base text-muted">
             {t("login.no_account")}{" "}
-            <Link to="/register" className="text-teal hover:underline">
+            <Link to="/register" className="text-accent hover:underline">
               {t("login.register_link")}
             </Link>
           </p>

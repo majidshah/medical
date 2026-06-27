@@ -88,7 +88,7 @@ function CreateReportForm({
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-base font-medium text-ink mb-1">{t("lab.form.category")}</label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base">
+          <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base">
             <option value="lab">{t("lab.category.lab")}</option>
             <option value="imaging">{t("lab.category.imaging")}</option>
           </select>
@@ -100,7 +100,7 @@ function CreateReportForm({
           <input type="file" accept=".png,.jpg,.jpeg,.pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} className="text-base" />
           <p className="text-base text-muted mt-1">{t("lab.upload.hint")}</p>
         </div>
-        {error && <p className="text-base text-amber" role="alert">{error}</p>}
+        {error && <p className="text-base text-status-warning" role="alert">{error}</p>}
         <div className="flex gap-3 pt-2">
           <Button type="submit" disabled={uploading}>{uploading ? t("common.loading") : t("lab.form.create")}</Button>
           <Button type="button" variant="secondary" onClick={onClose}>{t("common.cancel")}</Button>
@@ -173,24 +173,24 @@ function AddResultForm({
         <div>
           <Input label={t("lab.form.search_test")} value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("lab.form.search_placeholder")} />
           {catalogue && catalogue.items.length > 0 && search && (
-            <div className="border border-muted/20 rounded mt-1 max-h-40 overflow-y-auto">
+            <div className="border border-border-light rounded mt-1 max-h-40 overflow-y-auto">
               {catalogue.items.map((test) => (
-                <button key={test.id} type="button" onClick={() => selectTest(test)} className="block w-full text-left px-3 py-2 text-base hover:bg-teal-50">
+                <button key={test.id} type="button" onClick={() => selectTest(test)} className="block w-full text-left px-3 py-2 text-base hover:bg-accent-50">
                   {test.display_name} {test.loinc_code && <span className="text-muted">({test.loinc_code})</span>}
                 </button>
               ))}
             </div>
           )}
-          {selectedTest && <p className="text-base text-teal mt-1">{t("lab.form.selected")}: {selectedTest.display_name}</p>}
+          {selectedTest && <p className="text-base text-accent mt-1">{t("lab.form.selected")}: {selectedTest.display_name}</p>}
         </div>
         <Input label={t("lab.form.display_name")} value={displayName} onChange={(e) => setDisplayName(e.target.value)} required />
         <div className="flex gap-4">
           <label className="flex items-center gap-2 text-base cursor-pointer">
-            <input type="radio" checked={valueType === "numeric"} onChange={() => setValueType("numeric")} className="accent-teal" />
+            <input type="radio" checked={valueType === "numeric"} onChange={() => setValueType("numeric")} style={{ accentColor: "var(--accent)" }} />
             {t("lab.form.numeric")}
           </label>
           <label className="flex items-center gap-2 text-base cursor-pointer">
-            <input type="radio" checked={valueType === "text"} onChange={() => setValueType("text")} className="accent-teal" />
+            <input type="radio" checked={valueType === "text"} onChange={() => setValueType("text")} style={{ accentColor: "var(--accent)" }} />
             {t("lab.form.text_value")}
           </label>
         </div>
@@ -202,7 +202,7 @@ function AddResultForm({
         <Input label={t("lab.form.unit")} value={unit} onChange={(e) => setUnit(e.target.value)} />
         <Input label={t("lab.form.effective_date")} type="date" value={effectiveDate} onChange={(e) => setEffectiveDate(e.target.value)} required />
         <Input label={t("lab.form.notes")} value={notes} onChange={(e) => setNotes(e.target.value)} />
-        {error && <p className="text-base text-amber" role="alert">{error}</p>}
+        {error && <p className="text-base text-status-warning" role="alert">{error}</p>}
         <div className="flex gap-3">
           <Button type="submit" disabled={mutation.isPending}>{mutation.isPending ? t("common.loading") : t("lab.form.add_result_btn")}</Button>
           <Button type="button" variant="secondary" onClick={onClose}>{t("common.cancel")}</Button>
@@ -251,7 +251,7 @@ function ReportDetailView({ patientId, reportId }: { patientId: string; reportId
             {report.file_ref.content_type.startsWith("image/") ? (
               <img src={fileBlob} alt={report.file_ref.original_filename} className="max-w-full rounded" />
             ) : (
-              <a href={fileBlob} target="_blank" rel="noopener noreferrer" className="text-teal hover:underline text-base">
+              <a href={fileBlob} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline text-base">
                 {report.file_ref.original_filename}
               </a>
             )}
@@ -262,7 +262,7 @@ function ReportDetailView({ patientId, reportId }: { patientId: string; reportId
           {report.results.length > 0 ? (
             <table className="w-full text-base">
               <thead>
-                <tr className="border-b border-muted/20 text-left">
+                <tr className="border-b border-border-light text-left">
                   <th className="pb-2 font-medium">{t("summary.table_test")}</th>
                   <th className="pb-2 font-medium">{t("summary.table_value")}</th>
                   <th className="pb-2 font-medium">{t("summary.table_date")}</th>
@@ -271,7 +271,7 @@ function ReportDetailView({ patientId, reportId }: { patientId: string; reportId
               </thead>
               <tbody>
                 {report.results.map((r) => (
-                  <tr key={r.id} className="border-b border-muted/10">
+                  <tr key={r.id} className="border-b border-border-light">
                     <td className="py-2">{r.display_name}</td>
                     <td className="py-2 font-sans tabular-nums">{r.value_numeric ?? r.value_text ?? ""} {r.unit && <span className="text-muted">{r.unit}</span>}</td>
                     <td className="py-2 text-muted">{r.effective_date}</td>
@@ -313,7 +313,7 @@ function TimelineView({ patientId }: { patientId: string }) {
   if (selectedReport) {
     return (
       <div>
-        <button onClick={() => setSelectedReport(null)} className="text-base text-teal hover:underline mb-4">
+        <button onClick={() => setSelectedReport(null)} className="text-base text-accent hover:underline mb-4">
           &larr; {t("lab.timeline.back")}
         </button>
         <ReportDetailView patientId={patientId} reportId={selectedReport} />
@@ -328,7 +328,7 @@ function TimelineView({ patientId }: { patientId: string }) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base">
+        <select value={category} onChange={(e) => setCategory(e.target.value)} className="px-3 py-2 border border-border rounded bg-surface text-ink text-base">
           <option value="">{t("lab.timeline.all")}</option>
           <option value="lab">{t("lab.category.lab")}</option>
           <option value="imaging">{t("lab.category.imaging")}</option>
@@ -354,7 +354,7 @@ function TimelineView({ patientId }: { patientId: string }) {
                 </div>
                 <div className="flex items-center gap-3">
                   {entry.has_out_of_range && <NormalityBadge status="above_high" />}
-                  <button onClick={(e) => { e.stopPropagation(); setDeleting(entry); }} className="text-base text-amber hover:underline">{t("common.delete")}</button>
+                  <button onClick={(e) => { e.stopPropagation(); setDeleting(entry); }} className="text-base text-status-warning hover:underline">{t("common.delete")}</button>
                 </div>
               </div>
             </Card>
@@ -390,7 +390,7 @@ function LabTrendView({ patientId }: { patientId: string }) {
     <div>
       <div className="mb-4">
         <label className="block text-base font-medium text-ink mb-1">{t("lab.trend.select_test")}</label>
-        <select value={testKey} onChange={(e) => setTestKey(e.target.value)} className="px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base">
+        <select value={testKey} onChange={(e) => setTestKey(e.target.value)} className="px-3 py-2 border border-border rounded bg-surface text-ink text-base">
           <option value="">{t("lab.trend.choose")}</option>
           {tests.map((test) => <option key={test.key} value={test.key}>{test.display_name}</option>)}
         </select>
@@ -440,7 +440,7 @@ function ExportButtons({ patientId }: { patientId: string }) {
       <Button variant="secondary" onClick={() => handleExport("fhir")} disabled={exporting !== null}>
         {exporting === "fhir" ? t("common.loading") : t("lab.export.fhir")}
       </Button>
-      {error && <span className="text-base text-amber" role="alert">{error}</span>}
+      {error && <span className="text-base text-status-warning" role="alert">{error}</span>}
     </div>
   );
 }
@@ -464,16 +464,16 @@ export function LabReportsPage() {
 
       {showCreate && <CreateReportForm patientId={patientId!} onClose={() => setShowCreate(false)} />}
 
-      <div className="flex gap-1 mb-6 border-b border-muted/20 pb-2">
+      <div className="flex gap-1 mb-6 border-b border-border-light pb-2">
         <button
           onClick={() => setTab("timeline")}
-          className={`px-3 py-1.5 rounded text-base ${tab === "timeline" ? "bg-teal-50 text-teal font-medium" : "text-muted hover:text-ink"}`}
+          className={`px-3 py-1.5 rounded text-base ${tab === "timeline" ? "bg-accent-50 text-accent font-medium" : "text-muted hover:text-ink"}`}
         >
           {t("lab.tabs.timeline")}
         </button>
         <button
           onClick={() => setTab("trends")}
-          className={`px-3 py-1.5 rounded text-base ${tab === "trends" ? "bg-teal-50 text-teal font-medium" : "text-muted hover:text-ink"}`}
+          className={`px-3 py-1.5 rounded text-base ${tab === "trends" ? "bg-accent-50 text-accent font-medium" : "text-muted hover:text-ink"}`}
         >
           {t("lab.tabs.trends")}
         </button>

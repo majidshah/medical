@@ -38,7 +38,7 @@ function Select({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+        className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
       >
         {allowEmpty && <option value="">{emptyLabel}</option>}
         {options.map((o) => (
@@ -57,7 +57,7 @@ export function AllergiesPage() {
       config={{
         resourceKey: "allergies",
         i18nPrefix: "allergies",
-        cardClassName: "border-amber/30",
+        cardClassName: "border-status-warning/30",
         api: {
           list: listAllergies,
           create: (pid, data) => createAllergy(pid, data),
@@ -94,7 +94,7 @@ export function AllergiesPage() {
             <div className="flex items-center gap-3 mt-1 flex-wrap">
               <StatusBadge status={a.clinical_status} translationPrefix="allergies.status" />
               <span className="text-base text-muted capitalize">{t(`allergies.category.${a.category}`)}</span>
-              {a.criticality && <span className="text-base text-amber font-medium">{t(`allergies.criticality.${a.criticality}`)}</span>}
+              {a.criticality && <span className="text-base text-status-warning font-medium">{t(`allergies.criticality.${a.criticality}`)}</span>}
               {a.severity && <span className="text-base text-muted">{t(`allergies.severity.${a.severity}`)}</span>}
             </div>
             {a.reaction && <p className="text-base text-muted mt-1">{a.reaction}</p>}

@@ -17,12 +17,12 @@ export function Input({ label, error, id, ...props }: InputProps) {
       </label>
       <input
         id={inputId}
-        className={`w-full px-3 py-2 border rounded bg-surface text-ink font-sans text-base focus-visible:outline-2 focus-visible:outline-teal ${
-          error ? "border-amber" : "border-muted/40"
+        className={`w-full px-3 py-2 border rounded-theme bg-surface text-ink font-sans text-base ${
+          error ? "border-status-warning" : "border-border"
         }`}
         {...props}
       />
-      {error && <p className="mt-1 text-base text-amber">{error}</p>}
+      {error && <p className="mt-1 text-base text-status-warning">{error}</p>}
     </div>
   );
 }

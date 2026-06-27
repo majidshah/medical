@@ -101,7 +101,7 @@ function ObservationForm({
             <select
               value={typeId}
               onChange={(e) => setTypeId(e.target.value)}
-              className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+              className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
             >
               {types.map((tp) => (
                 <option key={tp.id} value={tp.id}>
@@ -137,7 +137,7 @@ function ObservationForm({
               value={valueCode}
               onChange={(e) => setValueCode(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+              className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
             >
               <option value="">—</option>
               {(CODED_OPTIONS[selectedType?.key || ""] || ["current", "former", "never"]).map((v) => (
@@ -166,7 +166,7 @@ function ObservationForm({
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
-        {error && <p className="text-base text-amber" role="alert">{error}</p>}
+        {error && <p className="text-base text-status-warning" role="alert">{error}</p>}
         <div className="flex gap-3 pt-2">
           <Button type="submit" disabled={mutation.isPending}>
             {mutation.isPending ? t("common.loading") : existing ? t("lifestyle.form.save") : t("lifestyle.form.add")}
@@ -260,7 +260,7 @@ export function LifestylePage() {
         <select
           value={filterType}
           onChange={(e) => { setFilterType(e.target.value); setShowTrend(false); }}
-          className="px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+          className="px-3 py-2 border border-border rounded bg-surface text-ink text-base"
         >
           <option value="">{t("lifestyle.all_types")}</option>
           {typesList.map((tp) => (
@@ -305,8 +305,8 @@ export function LifestylePage() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => { setEditing(o); setShowForm(true); }} className="text-base text-teal hover:underline">{t("common.edit")}</button>
-                  <button onClick={() => setDeleting(o)} className="text-base text-amber hover:underline">{t("common.delete")}</button>
+                  <button onClick={() => { setEditing(o); setShowForm(true); }} className="text-base text-accent hover:underline">{t("common.edit")}</button>
+                  <button onClick={() => setDeleting(o)} className="text-base text-status-warning hover:underline">{t("common.delete")}</button>
                 </div>
               </div>
             </Card>

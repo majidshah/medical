@@ -31,6 +31,8 @@ interface ThemeState extends ThemePreferences {
   setAccent: (a: ThemeAccent) => void;
   setDensity: (d: ThemeDensity) => void;
   setAll: (prefs: ThemePreferences) => void;
+  loadFromAccount: () => Promise<void>;
+  resetToDefaults: () => void;
 }
 
 const ThemeContext = createContext<ThemeState | null>(null);
@@ -43,25 +45,37 @@ function applyToDOM(prefs: ThemePreferences) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [prefs, setPrefsState] = useState<ThemePreferences>(DEFAULTS);
+  const [prefs, setPrefsState] = useState<ThemePreferences>(() => {
+    applyToDOM(DEFAULTS);
+    return DEFAULTS;
+  });
 
   useEffect(() => {
     applyToDOM(prefs);
   }, [prefs]);
 
-  useEffect(() => {
-    if (getAccessToken()) {
-      getPreferences()
-        .then((p) => setPrefsState(p))
-        .catch(() => {});
-    }
-  }, []);
-
   const persist = useCallback((next: ThemePreferences) => {
     setPrefsState(next);
+    applyToDOM(next);
     if (getAccessToken()) {
       updatePreferences(next).catch(() => {});
     }
+  }, []);
+
+  const loadFromAccount = useCallback(async () => {
+    if (!getAccessToken()) return;
+    try {
+      const p = await getPreferences();
+      setPrefsState(p);
+      applyToDOM(p);
+    } catch {
+      // Keep defaults on failure
+    }
+  }, []);
+
+  const resetToDefaults = useCallback(() => {
+    setPrefsState(DEFAULTS);
+    applyToDOM(DEFAULTS);
   }, []);
 
   const setMode = useCallback(
@@ -83,7 +97,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeContext.Provider
-      value={{ ...prefs, setMode, setAccent, setDensity, setAll }}
+      value={{
+        ...prefs,
+        setMode,
+        setAccent,
+        setDensity,
+        setAll,
+        loadFromAccount,
+        resetToDefaults,
+      }}
     >
       {children}
     </ThemeContext.Provider>

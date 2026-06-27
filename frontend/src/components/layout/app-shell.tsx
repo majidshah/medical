@@ -111,6 +111,19 @@ export function AppShell() {
               </button>
             ))}
           </div>
+          <div className="flex gap-1">
+            {(["comfortable", "compact"] as const).map((d) => (
+              <button
+                key={d}
+                onClick={() => theme.setDensity(d)}
+                className={`flex-1 px-2 py-1 rounded-theme text-xs ${
+                  theme.density === d ? "bg-accent text-on-accent" : "text-on-sidebar/60 hover:bg-white/10"
+                }`}
+              >
+                {t(`theme.${d}`)}
+              </button>
+            ))}
+          </div>
           <button
             onClick={handleLogout}
             className="w-full text-left px-3 py-1.5 rounded-theme text-base text-on-sidebar/60 hover:bg-white/10"

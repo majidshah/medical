@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as conditionsApi from "@/api/conditions";
 import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { ConditionsPage } from "@/pages/conditions";
 import "@/i18n";
 
@@ -27,14 +28,14 @@ function renderConditions() {
   return render(
     <QueryClientProvider client={qc}>
       <MemoryRouter initialEntries={["/patients/p1/conditions"]}>
-        <AuthProvider>
+        <ThemeProvider><AuthProvider>
           <Routes>
             <Route
               path="/patients/:patientId/conditions"
               element={<ConditionsPage />}
             />
           </Routes>
-        </AuthProvider>
+        </AuthProvider></ThemeProvider>
       </MemoryRouter>
     </QueryClientProvider>,
   );

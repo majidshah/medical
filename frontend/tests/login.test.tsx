@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 
 import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { LoginPage } from "@/pages/login";
 import "@/i18n";
 
@@ -19,9 +20,9 @@ function renderLogin() {
   return render(
     <QueryClientProvider client={qc}>
       <MemoryRouter>
-        <AuthProvider>
+        <ThemeProvider><AuthProvider>
           <LoginPage />
-        </AuthProvider>
+        </AuthProvider></ThemeProvider>
       </MemoryRouter>
     </QueryClientProvider>,
   );

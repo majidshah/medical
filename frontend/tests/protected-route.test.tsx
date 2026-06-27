@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 
 import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { ProtectedRoute } from "@/lib/protected-route";
 import "@/i18n";
 
@@ -12,14 +13,14 @@ function renderProtected(initialPath: string) {
   return render(
     <QueryClientProvider client={qc}>
       <MemoryRouter initialEntries={[initialPath]}>
-        <AuthProvider>
+        <ThemeProvider><AuthProvider>
           <Routes>
             <Route path="/login" element={<div>Login Page</div>} />
             <Route element={<ProtectedRoute />}>
               <Route path="/patients" element={<div>Patient List</div>} />
             </Route>
           </Routes>
-        </AuthProvider>
+        </AuthProvider></ThemeProvider>
       </MemoryRouter>
     </QueryClientProvider>,
   );

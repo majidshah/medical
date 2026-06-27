@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as patientsApi from "@/api/patients";
 import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { PatientListPage } from "@/pages/patient-list";
 import "@/i18n";
 
@@ -22,9 +23,9 @@ function renderList() {
   return render(
     <QueryClientProvider client={qc}>
       <MemoryRouter>
-        <AuthProvider>
+        <ThemeProvider><AuthProvider>
           <PatientListPage />
-        </AuthProvider>
+        </AuthProvider></ThemeProvider>
       </MemoryRouter>
     </QueryClientProvider>,
   );

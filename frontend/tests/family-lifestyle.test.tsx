@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as fhApi from "@/api/family-history";
 import * as obsApi from "@/api/observations";
 import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { FamilyHistoryPage } from "@/pages/family-history";
 import { LifestylePage } from "@/pages/lifestyle";
 import "@/i18n";
@@ -32,11 +33,11 @@ function renderPage(path: string, element: React.ReactElement) {
   return render(
     <QueryClientProvider client={qc}>
       <MemoryRouter initialEntries={[path]}>
-        <AuthProvider>
+        <ThemeProvider><AuthProvider>
           <Routes>
             <Route path={path.replace("p1", ":patientId")} element={element} />
           </Routes>
-        </AuthProvider>
+        </AuthProvider></ThemeProvider>
       </MemoryRouter>
     </QueryClientProvider>,
   );

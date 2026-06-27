@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "@/components/layout/app-shell";
 import { AuthProvider } from "@/lib/auth-context";
 import { ProtectedRoute } from "@/lib/protected-route";
+import { ThemeProvider } from "@/lib/theme-context";
 import { AllergiesPage } from "@/pages/allergies";
 import { ConditionsPage } from "@/pages/conditions";
 import { FamilyHistoryPage } from "@/pages/family-history";
@@ -26,6 +27,7 @@ export function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <ThemeProvider>
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
@@ -70,6 +72,7 @@ export function App() {
             <Route path="*" element={<Navigate to="/patients" replace />} />
           </Routes>
         </AuthProvider>
+        </ThemeProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );

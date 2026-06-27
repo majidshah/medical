@@ -18,7 +18,7 @@ export function ConfirmDialog({
   const { t } = useTranslation();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/30">
-      <div className="bg-surface rounded-lg border border-muted/20 p-6 shadow-lg max-w-sm w-full mx-4">
+      <div className="bg-surface rounded-lg border border-border-light p-6 shadow-lg max-w-sm w-full mx-4">
         <p className="text-base text-ink mb-6">{message}</p>
         <div className="flex gap-3 justify-end">
           <Button variant="secondary" onClick={onCancel} disabled={loading}>

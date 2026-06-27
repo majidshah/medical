@@ -115,7 +115,7 @@ export function TrendChart({
         </ResponsiveContainer>
       </div>
       <details className="mt-4">
-        <summary className="text-base text-teal cursor-pointer hover:underline">
+        <summary className="text-base text-accent cursor-pointer hover:underline">
           {t("trend.show_table")}
         </summary>
         <div className="mt-2">
@@ -137,14 +137,14 @@ function TrendTable({
   return (
     <table className="w-full text-base">
       <thead>
-        <tr className="border-b border-muted/20 text-left">
+        <tr className="border-b border-border-light text-left">
           <th className="pb-2 font-medium">{t("trend.table_date")}</th>
           <th className="pb-2 font-medium">{t("trend.table_value")}</th>
         </tr>
       </thead>
       <tbody>
         {points.map((p, i) => (
-          <tr key={i} className="border-b border-muted/10">
+          <tr key={i} className="border-b border-border-light">
             <td className="py-1.5 text-muted">{p.effective_date}</td>
             <td className="py-1.5 font-sans tabular-nums">
               {p.value ?? "—"} {unit && <span className="text-muted">{unit}</span>}

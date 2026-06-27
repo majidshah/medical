@@ -20,7 +20,7 @@ export function PatientSummaryPage() {
     return <p className="text-muted text-center py-12">{t("common.loading")}</p>;
   }
   if (error || !data) {
-    return <p className="text-amber text-center py-12">{t("common.error")}</p>;
+    return <p className="text-status-warning text-center py-12">{t("common.error")}</p>;
   }
 
   const { patient, active_conditions, current_medications, allergies, recent_results, counts } = data;
@@ -49,7 +49,7 @@ export function PatientSummaryPage() {
             </h2>
             <Link
               to={`/patients/${patientId}/conditions`}
-              className="text-base text-teal hover:underline"
+              className="text-base text-accent hover:underline"
             >
               {t("summary.view_all")}
             </Link>
@@ -102,7 +102,7 @@ export function PatientSummaryPage() {
           )}
         </Card>
 
-        <Card className="border-amber/30">
+        <Card className="border-status-warning/30">
           <h2 className="font-serif text-xl text-ink mb-4">
             {t("summary.allergies")}
             {counts.allergies > 0 && (
@@ -122,7 +122,7 @@ export function PatientSummaryPage() {
                     </span>
                   </div>
                   {a.criticality && (
-                    <span className="text-base text-amber font-medium capitalize">
+                    <span className="text-base text-status-warning font-medium capitalize">
                       {a.criticality}
                     </span>
                   )}
@@ -147,7 +147,7 @@ export function PatientSummaryPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-base">
                 <thead>
-                  <tr className="border-b border-muted/20 text-left">
+                  <tr className="border-b border-border-light text-left">
                     <th className="pb-2 font-medium">{t("summary.table_test")}</th>
                     <th className="pb-2 font-medium">{t("summary.table_value")}</th>
                     <th className="pb-2 font-medium">{t("summary.table_date")}</th>
@@ -156,7 +156,7 @@ export function PatientSummaryPage() {
                 </thead>
                 <tbody>
                   {recent_results.map((r) => (
-                    <tr key={r.id} className="border-b border-muted/10">
+                    <tr key={r.id} className="border-b border-border-light">
                       <td className="py-2">{r.display_name}</td>
                       <td className="py-2 font-sans tabular-nums">
                         {r.value_numeric ?? r.value_text ?? ""}{" "}

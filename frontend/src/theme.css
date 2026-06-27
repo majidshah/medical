@@ -1,0 +1,97 @@
+/* Theme token system — all colours as CSS variables.
+   Switching theme = swapping token values via data attributes on <html>.
+   Status colours are INDEPENDENT of accent — they never shift. */
+
+:root {
+  /* === STATUS COLOURS (safety-critical, accent-independent) === */
+  --status-normal: #2D7A4F;
+  --status-normal-bg: #e8f5ef;
+  --status-warning: #C47F17;
+  --status-warning-bg: #fef5e7;
+  --status-unknown: #8C8C8C;
+  --status-unknown-bg: #f0f0f0;
+
+  /* === DENSITY === */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --radius: 0.75rem;
+}
+
+/* ---------- DENSITY: compact ---------- */
+[data-density="compact"] {
+  --space-xs: 0.125rem;
+  --space-sm: 0.25rem;
+  --space-md: 0.5rem;
+  --space-lg: 0.75rem;
+  --space-xl: 1rem;
+  --radius: 0.5rem;
+}
+
+/* ========== LIGHT MODE (default) ========== */
+:root,
+[data-mode="light"] {
+  --bg-page: #F7F4EF;
+  --bg-surface: #FFFFFF;
+  --bg-sidebar: var(--accent-900);
+  --text-primary: #2C2C2C;
+  --text-secondary: #6B6B6B;
+  --text-muted: #8C8C8C;
+  --text-on-sidebar: #E8F5F1;
+  --text-on-accent: #FFFFFF;
+  --border: #E0E0E0;
+  --border-light: rgba(0, 0, 0, 0.08);
+}
+
+/* ========== DARK MODE ========== */
+[data-mode="dark"] {
+  --bg-page: #1A1A1A;
+  --bg-surface: #2A2A2A;
+  --bg-sidebar: #111111;
+  --text-primary: #E8E8E8;
+  --text-secondary: #B0B0B0;
+  --text-muted: #808080;
+  --text-on-sidebar: #D0D0D0;
+  --text-on-accent: #FFFFFF;
+  --border: #404040;
+  --border-light: rgba(255, 255, 255, 0.08);
+
+  --status-normal-bg: #1a3a2a;
+  --status-warning-bg: #3a2a10;
+  --status-unknown-bg: #2a2a2a;
+}
+
+/* ========== ACCENT: teal (default) ========== */
+:root,
+[data-accent="teal"] {
+  --accent: #1A6B5A;
+  --accent-hover: #145A4B;
+  --accent-light: #E8F5F1;
+  --accent-50: #E8F5F1;
+  --accent-900: #0D3D32;
+}
+
+/* ========== ACCENT: blue ========== */
+[data-accent="blue"] {
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-light: #EFF6FF;
+  --accent-50: #EFF6FF;
+  --accent-900: #1E2A4A;
+}
+
+/* ========== ACCENT: rose ========== */
+[data-accent="rose"] {
+  --accent: #BE185D;
+  --accent-hover: #9D174D;
+  --accent-light: #FFF1F2;
+  --accent-50: #FFF1F2;
+  --accent-900: #4A1A2E;
+}
+
+/* Dark + accent sidebar overrides */
+[data-mode="dark"][data-accent="teal"] { --bg-sidebar: #0A2E26; }
+[data-mode="dark"][data-accent="blue"] { --bg-sidebar: #0F1A30; }
+[data-mode="dark"][data-accent="rose"] { --bg-sidebar: #2A0F1A; }

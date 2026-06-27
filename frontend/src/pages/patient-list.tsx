@@ -98,7 +98,7 @@ function AddPatientForm({
           <select
             value={gender}
             onChange={(e) => setGender(e.target.value)}
-            className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+            className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
           >
             <option value="male">{t("patients.form.gender_male")}</option>
             <option value="female">{t("patients.form.gender_female")}</option>
@@ -113,7 +113,7 @@ function AddPatientForm({
           <select
             value={relationship}
             onChange={(e) => setRelationship(e.target.value)}
-            className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+            className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
           >
             <option value="self">{t("patients.form.rel_self")}</option>
             <option value="child">{t("patients.form.rel_child")}</option>
@@ -134,7 +134,7 @@ function AddPatientForm({
                 name="idType"
                 checked={idType === "cnic"}
                 onChange={() => setIdType("cnic")}
-                className="accent-teal"
+                style={{ accentColor: "var(--accent)" }}
               />
               {t("patients.form.id_cnic")}
             </label>
@@ -144,7 +144,7 @@ function AddPatientForm({
                 name="idType"
                 checked={idType === "dependent"}
                 onChange={() => setIdType("dependent")}
-                className="accent-teal"
+                style={{ accentColor: "var(--accent)" }}
               />
               {t("patients.form.id_dependent")}
             </label>
@@ -173,7 +173,7 @@ function AddPatientForm({
                 value={guardianId}
                 onChange={(e) => setGuardianId(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+                className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
               >
                 <option value="">—</option>
                 {guardians.map((g) => (
@@ -187,7 +187,7 @@ function AddPatientForm({
         )}
 
         {error && (
-          <p className="text-base text-amber" role="alert">
+          <p className="text-base text-status-warning" role="alert">
             {error}
           </p>
         )}
@@ -222,7 +222,7 @@ export function PatientListPage() {
   }
   if (error) {
     return (
-      <p className="text-amber text-center py-12">{t("common.error")}</p>
+      <p className="text-status-warning text-center py-12">{t("common.error")}</p>
     );
   }
 

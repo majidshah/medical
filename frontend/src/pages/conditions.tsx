@@ -33,7 +33,7 @@ function SelectField({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+        className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value}>{o.label}</option>

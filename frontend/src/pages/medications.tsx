@@ -69,7 +69,7 @@ export function MedicationsPage() {
               <select
                 value={(values.status as string) || "active"}
                 onChange={(e) => onChange("status", e.target.value)}
-                className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+                className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
               >
                 {STATUSES.map((s) => <option key={s} value={s}>{t(`medications.status.${s}`)}</option>)}
               </select>

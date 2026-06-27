@@ -44,7 +44,7 @@ function ImmunizationFormFields({
               name="vaccineSource"
               checked={vaccineSource === "epi"}
               onChange={() => onChange("vaccine_source", "epi")}
-              className="accent-teal"
+              style={{ accentColor: "var(--accent)" }}
             />
             {t("immunizations.form.epi_vaccine")}
           </label>
@@ -54,7 +54,7 @@ function ImmunizationFormFields({
               name="vaccineSource"
               checked={vaccineSource === "free"}
               onChange={() => onChange("vaccine_source", "free")}
-              className="accent-teal"
+              style={{ accentColor: "var(--accent)" }}
             />
             {t("immunizations.form.free_text")}
           </label>
@@ -69,7 +69,7 @@ function ImmunizationFormFields({
             value={(values.epi_vaccine_id as string) || ""}
             onChange={(e) => onChange("epi_vaccine_id", e.target.value)}
             required
-            className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+            className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
           >
             <option value="">—</option>
             {(epiVaccines || []).map((v) => (
@@ -122,7 +122,7 @@ function ImmunizationFormFields({
         <select
           value={(values.status as string) || "completed"}
           onChange={(e) => onChange("status", e.target.value)}
-          className="w-full px-3 py-2 border border-muted/40 rounded bg-surface text-ink text-base"
+          className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
         >
           {STATUSES.map((s) => (
             <option key={s} value={s}>

@@ -296,7 +296,15 @@
   },
   "nav": {
     "patients": "Patients",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "health_profile": "Health Profile"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "teal": "Teal",
+    "blue": "Blue",
+    "rose": "Rose"
   },
   "common": {
     "loading": "Loading...",

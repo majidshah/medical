@@ -33,7 +33,7 @@ export function PatientNav({ patientId }: PatientNavProps) {
   ];
 
   return (
-    <nav className="flex gap-1 mb-6 overflow-x-auto border-b border-muted/20 pb-2">
+    <nav className="flex gap-1 mb-6 overflow-x-auto border-b border-border-light pb-2">
       {links.map((l) => {
         const active = l.exact
           ? pathname === l.to
@@ -44,7 +44,7 @@ export function PatientNav({ patientId }: PatientNavProps) {
             to={l.to}
             className={`px-3 py-1.5 rounded text-base whitespace-nowrap transition-colors ${
               active
-                ? "bg-teal-50 text-teal font-medium"
+                ? "bg-accent-50 text-accent font-medium"
                 : "text-muted hover:text-ink"
             }`}
           >

@@ -61,6 +61,17 @@ pip install -e ".[dev]" -q 2>&1 | tail -1
 echo -e "${GREEN}▸ Running Alembic migrations...${NC}"
 DATABASE_URL="${DB_URL}" \
   alembic upgrade head 2>&1 | grep -E "Running upgrade|already" || true
+
+# Verify the schema actually exists — if alembic says head but core tables
+# are missing (e.g. schema was dropped or partial), drop everything and
+# rebuild cleanly.
+if ! PGPASSWORD="${DB_PASS}" psql -h localhost -U medvault -d medvault \
+    -tc "SELECT 1 FROM information_schema.tables WHERE table_name='accounts'" 2>/dev/null | grep -q 1; then
+  echo "  ⚠ accounts table missing — dropping schema and rebuilding..."
+  PGPASSWORD="${DB_PASS}" psql -h localhost -U medvault -d medvault \
+    -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;" 2>/dev/null || true
+  DATABASE_URL="${DB_URL}" alembic upgrade head 2>&1 | grep -E "Running upgrade" || true
+fi
 echo "  Migrations complete."
 
 # ── 6. Install frontend deps (if needed) ─────────────────────────────

@@ -32,11 +32,9 @@ sudo su - postgres -c "psql -tc \"SELECT 1 FROM pg_database WHERE datname='medva
   && echo "  Database exists." \
   || { sudo su - postgres -c "psql -c \"CREATE DATABASE medvault OWNER medvault;\""; echo "  Database created."; }
 
-# Reset the password every time (survives container rebuilds)
-sudo su - postgres -c "psql -c \"ALTER USER medvault WITH PASSWORD 'medvault';\"" >/dev/null 2>&1
-echo "  Password reset."
+# Password is synced from .env in step 3 (single source of truth)
 
-# ── 3. Backend .env ──────────────────────────────────────────────────
+# ── 3. Backend .env (single source of truth for DB password) ─────────
 echo -e "${GREEN}▸ Checking backend .env...${NC}"
 if [ ! -f backend/.env ]; then
   cp backend/.env.example backend/.env
@@ -45,6 +43,15 @@ else
   echo "  Already exists."
 fi
 
+# Read the DB password from .env's DATABASE_URL so the script always agrees
+DB_URL=$(grep -E '^DATABASE_URL=' backend/.env | head -1 | cut -d= -f2-)
+DB_PASS=$(echo "$DB_URL" | sed -n 's|.*://[^:]*:\([^@]*\)@.*|\1|p')
+DB_PASS=${DB_PASS:-medvault}
+
+# Set the Postgres user password to match .env (single source of truth)
+sudo su - postgres -c "psql -c \"ALTER USER medvault WITH PASSWORD '${DB_PASS}';\"" >/dev/null 2>&1
+echo "  DB password synced from .env."
+
 # ── 4. Install backend deps (if needed) ─────────────────────────────
 echo -e "${GREEN}▸ Installing backend dependencies...${NC}"
 cd /workspaces/medical/backend
@@ -52,7 +59,7 @@ pip install -e ".[dev]" -q 2>&1 | tail -1
 
 # ── 5. Run Alembic migrations ────────────────────────────────────────
 echo -e "${GREEN}▸ Running Alembic migrations...${NC}"
-DATABASE_URL="postgresql+asyncpg://medvault:medvault@localhost:5432/medvault" \
+DATABASE_URL="${DB_URL}" \
   alembic upgrade head 2>&1 | grep -E "Running upgrade|already" || true
 echo "  Migrations complete."
 

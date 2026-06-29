@@ -34,7 +34,7 @@ function ImmunizationFormFields({
   return (
     <>
       <div>
-        <label className="block text-base font-medium text-ink mb-1">
+        <label className="block text-base text-secondary mb-1">
           {t("immunizations.form.vaccine_source")}
         </label>
         <div className="flex gap-4">
@@ -62,7 +62,7 @@ function ImmunizationFormFields({
       </div>
       {vaccineSource === "epi" ? (
         <div>
-          <label className="block text-base font-medium text-ink mb-1">
+          <label className="block text-base text-secondary mb-1">
             {t("immunizations.form.epi_select")}
           </label>
           <select
@@ -116,7 +116,7 @@ function ImmunizationFormFields({
         onChange={(e) => onChange("site", e.target.value)}
       />
       <div>
-        <label className="block text-base font-medium text-ink mb-1">
+        <label className="block text-base text-secondary mb-1">
           {t("immunizations.form.status")}
         </label>
         <select

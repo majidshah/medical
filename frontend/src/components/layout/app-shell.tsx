@@ -41,7 +41,7 @@ export function AppShell() {
     <div className="flex min-h-screen bg-page">
       <aside className="w-64 bg-sidebar text-on-sidebar flex flex-col shrink-0">
         <div className="p-4">
-          <Link to="/patients" className="font-serif text-xl font-bold text-on-sidebar hover:opacity-80">
+          <Link to="/patients" className="font-serif text-lg font-medium text-on-sidebar hover:opacity-80">
             {t("app_name")}
           </Link>
         </div>

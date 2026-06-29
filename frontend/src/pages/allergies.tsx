@@ -34,7 +34,7 @@ function Select({
 }) {
   return (
     <div>
-      <label className="block text-base font-medium text-ink mb-1">{label}</label>
+      <label className="block text-base text-secondary mb-1">{label}</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}

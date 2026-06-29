@@ -73,7 +73,7 @@ export function FamilyHistoryPage() {
         renderFormFields: (values, onChange, t) => (
           <>
             <div>
-              <label className="block text-base font-medium text-ink mb-1">
+              <label className="block text-base text-secondary mb-1">
                 {t("family_history.form.relationship")}
               </label>
               <select

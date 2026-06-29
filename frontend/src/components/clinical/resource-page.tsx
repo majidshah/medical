@@ -133,8 +133,8 @@ export function ResourcePage<TItem, TFormData>({
     <div>
       <PatientNav patientId={patientId!} />
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-2xl text-ink">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-lg text-ink font-medium font-medium">
           {t(`${config.i18nPrefix}.title`)}
         </h1>
         {!showForm && items.length > 0 && (
@@ -146,19 +146,22 @@ export function ResourcePage<TItem, TFormData>({
 
       {showForm && (
         <Card className="mb-6">
-          <h2 className="font-serif text-xl text-ink mb-4">
+          <h2 className="text-lg text-ink font-medium mb-5">
             {editing
               ? t(`${config.i18nPrefix}.form.edit_title`)
               : t(`${config.i18nPrefix}.form.add_title`)}
           </h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {config.renderFormFields(formValues as Partial<TFormData>, handleFieldChange, t)}
             {formError && (
-              <p className="text-base text-status-warning" role="alert">
+              <p className="text-sm text-status-warning" role="alert">
                 {formError}
               </p>
             )}
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-3 justify-end pt-3">
+              <Button type="button" variant="secondary" onClick={handleCloseForm}>
+                {t("common.cancel")}
+              </Button>
               <Button type="submit" disabled={saveMutation.isPending}>
                 {saveMutation.isPending
                   ? t("common.loading")
@@ -166,17 +169,14 @@ export function ResourcePage<TItem, TFormData>({
                     ? t(`${config.i18nPrefix}.form.save`)
                     : t(`${config.i18nPrefix}.form.add`)}
               </Button>
-              <Button type="button" variant="secondary" onClick={handleCloseForm}>
-                {t("common.cancel")}
-              </Button>
             </div>
           </form>
         </Card>
       )}
 
       {items.length === 0 && !showForm ? (
-        <Card className="text-center py-12">
-          <p className="text-muted text-lg mb-4">
+        <Card className="text-center py-16">
+          <p className="text-secondary text-base mb-4">
             {t(`${config.i18nPrefix}.empty`)}
           </p>
           <Button onClick={handleOpenAdd}>
@@ -191,16 +191,16 @@ export function ResourcePage<TItem, TFormData>({
                 <div className="flex-1 min-w-0">
                   {config.renderItem(item, t)}
                 </div>
-                <div className="flex gap-2 ml-4 shrink-0">
+                <div className="flex gap-3 ml-4 shrink-0">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="text-base text-accent hover:underline"
+                    className="text-xs text-secondary hover:text-accent"
                   >
                     {t("common.edit")}
                   </button>
                   <button
                     onClick={() => setDeleting(item)}
-                    className="text-base text-status-warning hover:underline"
+                    className="text-xs text-secondary hover:text-status-warning"
                   >
                     {t("common.delete")}
                   </button>

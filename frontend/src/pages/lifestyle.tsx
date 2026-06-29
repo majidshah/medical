@@ -89,13 +89,13 @@ function ObservationForm({
 
   return (
     <Card className="mb-6">
-      <h2 className="font-serif text-xl text-ink mb-4">
+      <h2 className="text-lg text-ink font-medium mb-4">
         {existing ? t("lifestyle.form.edit_title") : t("lifestyle.form.add_title")}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         {!existing && (
           <div>
-            <label className="block text-base font-medium text-ink mb-1">
+            <label className="block text-base text-secondary mb-1">
               {t("lifestyle.form.type")}
             </label>
             <select
@@ -130,7 +130,7 @@ function ObservationForm({
         )}
         {vt === "coded" && (
           <div>
-            <label className="block text-base font-medium text-ink mb-1">
+            <label className="block text-base text-secondary mb-1">
               {t("lifestyle.form.value_coded")}
             </label>
             <select
@@ -167,7 +167,7 @@ function ObservationForm({
           onChange={(e) => setNotes(e.target.value)}
         />
         {error && <p className="text-base text-status-warning" role="alert">{error}</p>}
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 justify-end pt-3">
           <Button type="submit" disabled={mutation.isPending}>
             {mutation.isPending ? t("common.loading") : existing ? t("lifestyle.form.save") : t("lifestyle.form.add")}
           </Button>
@@ -241,7 +241,7 @@ export function LifestylePage() {
     <div>
       <PatientNav patientId={patientId!} />
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-2xl text-ink">{t("lifestyle.title")}</h1>
+        <h1 className="text-lg text-ink font-medium font-medium">{t("lifestyle.title")}</h1>
         <Button onClick={() => { setEditing(undefined); setShowForm(true); }}>
           {t("lifestyle.add")}
         </Button>

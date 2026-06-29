@@ -65,7 +65,7 @@ export function MedicationsPage() {
             <Input label={t("medications.form.frequency")} value={(values.frequency as string) || ""} onChange={(e) => onChange("frequency", e.target.value)} placeholder={t("medications.form.frequency_placeholder")} />
             <Input label={t("medications.form.route")} value={(values.route as string) || ""} onChange={(e) => onChange("route", e.target.value)} placeholder={t("medications.form.route_placeholder")} />
             <div>
-              <label className="block text-base font-medium text-ink mb-1">{t("medications.form.status")}</label>
+              <label className="block text-base text-secondary mb-1">{t("medications.form.status")}</label>
               <select
                 value={(values.status as string) || "active"}
                 onChange={(e) => onChange("status", e.target.value)}

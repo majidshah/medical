@@ -77,33 +77,34 @@ function AddPatientForm({
       <h2 className="text-lg text-ink font-medium mb-4">
         {t("patients.form.title")}
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <Input
           label={t("patients.form.full_name")}
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           required
         />
-        <Input
-          label={t("patients.form.date_of_birth")}
-          type="date"
-          value={dateOfBirth}
-          onChange={(e) => setDateOfBirth(e.target.value)}
-        />
-
-        <div>
-          <label className="block text-base text-secondary mb-1">
-            {t("patients.form.gender")}
-          </label>
-          <select
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
-          >
-            <option value="male">{t("patients.form.gender_male")}</option>
-            <option value="female">{t("patients.form.gender_female")}</option>
-            <option value="other">{t("patients.form.gender_other")}</option>
-          </select>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            label={t("patients.form.date_of_birth")}
+            type="date"
+            value={dateOfBirth}
+            onChange={(e) => setDateOfBirth(e.target.value)}
+          />
+          <div>
+            <label className="block text-base text-secondary mb-1">
+              {t("patients.form.gender")}
+            </label>
+            <select
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base"
+            >
+              <option value="male">{t("patients.form.gender_male")}</option>
+              <option value="female">{t("patients.form.gender_female")}</option>
+              <option value="other">{t("patients.form.gender_other")}</option>
+            </select>
+          </div>
         </div>
 
         <div>

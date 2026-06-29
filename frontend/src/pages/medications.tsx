@@ -61,22 +61,28 @@ export function MedicationsPage() {
         renderFormFields: (values, onChange, t) => (
           <>
             <Input label={t("medications.form.display_name")} value={(values.display_name as string) || ""} onChange={(e) => onChange("display_name", e.target.value)} required />
-            <Input label={t("medications.form.dosage")} value={(values.dosage as string) || ""} onChange={(e) => onChange("dosage", e.target.value)} placeholder="500 mg" />
-            <Input label={t("medications.form.frequency")} value={(values.frequency as string) || ""} onChange={(e) => onChange("frequency", e.target.value)} placeholder={t("medications.form.frequency_placeholder")} />
-            <Input label={t("medications.form.route")} value={(values.route as string) || ""} onChange={(e) => onChange("route", e.target.value)} placeholder={t("medications.form.route_placeholder")} />
-            <div>
-              <label className="block text-base text-secondary mb-1">{t("medications.form.status")}</label>
-              <select
-                value={(values.status as string) || "active"}
-                onChange={(e) => onChange("status", e.target.value)}
-                className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
-              >
-                {STATUSES.map((s) => <option key={s} value={s}>{t(`medications.status.${s}`)}</option>)}
-              </select>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Input label={t("medications.form.dosage")} value={(values.dosage as string) || ""} onChange={(e) => onChange("dosage", e.target.value)} placeholder="500 mg" />
+              <Input label={t("medications.form.frequency")} value={(values.frequency as string) || ""} onChange={(e) => onChange("frequency", e.target.value)} placeholder={t("medications.form.frequency_placeholder")} />
+              <Input label={t("medications.form.route")} value={(values.route as string) || ""} onChange={(e) => onChange("route", e.target.value)} placeholder={t("medications.form.route_placeholder")} />
             </div>
-            <Input label={t("medications.form.start_date")} type="date" value={(values.start_date as string) || ""} onChange={(e) => onChange("start_date", e.target.value)} />
-            <Input label={t("medications.form.end_date")} type="date" value={(values.end_date as string) || ""} onChange={(e) => onChange("end_date", e.target.value)} />
-            <Input label={t("medications.form.prescribed_by")} value={(values.prescribed_by as string) || ""} onChange={(e) => onChange("prescribed_by", e.target.value)} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-base text-secondary mb-1">{t("medications.form.status")}</label>
+                <select
+                  value={(values.status as string) || "active"}
+                  onChange={(e) => onChange("status", e.target.value)}
+                  className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base"
+                >
+                  {STATUSES.map((s) => <option key={s} value={s}>{t(`medications.status.${s}`)}</option>)}
+                </select>
+              </div>
+              <Input label={t("medications.form.prescribed_by")} value={(values.prescribed_by as string) || ""} onChange={(e) => onChange("prescribed_by", e.target.value)} />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input label={t("medications.form.start_date")} type="date" value={(values.start_date as string) || ""} onChange={(e) => onChange("start_date", e.target.value)} />
+              <Input label={t("medications.form.end_date")} type="date" value={(values.end_date as string) || ""} onChange={(e) => onChange("end_date", e.target.value)} />
+            </div>
             <Input label={t("medications.form.notes")} value={(values.notes as string) || ""} onChange={(e) => onChange("notes", e.target.value)} />
           </>
         ),

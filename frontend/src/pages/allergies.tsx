@@ -103,14 +103,18 @@ export function AllergiesPage() {
         renderFormFields: (values, onChange, t) => (
           <>
             <Input label={t("allergies.form.display_name")} value={(values.display_name as string) || ""} onChange={(e) => onChange("display_name", e.target.value)} required />
-            <Select label={t("allergies.form.category")} value={(values.category as string) || "food"} onChange={(v) => onChange("category", v)} options={CATEGORIES.map((c) => ({ value: c, label: t(`allergies.category.${c}`) }))} />
-            <Select label={t("allergies.form.criticality")} value={(values.criticality as string) || ""} onChange={(v) => onChange("criticality", v)} options={CRITICALITIES.map((c) => ({ value: c, label: t(`allergies.criticality.${c}`) }))} allowEmpty emptyLabel={t("allergies.form.none")} />
-            <Select label={t("allergies.form.clinical_status")} value={(values.clinical_status as string) || "active"} onChange={(v) => onChange("clinical_status", v)} options={STATUSES.map((s) => ({ value: s, label: t(`allergies.status.${s}`) }))} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Select label={t("allergies.form.category")} value={(values.category as string) || "food"} onChange={(v) => onChange("category", v)} options={CATEGORIES.map((c) => ({ value: c, label: t(`allergies.category.${c}`) }))} />
+              <Select label={t("allergies.form.clinical_status")} value={(values.clinical_status as string) || "active"} onChange={(v) => onChange("clinical_status", v)} options={STATUSES.map((s) => ({ value: s, label: t(`allergies.status.${s}`) }))} />
+              <Select label={t("allergies.form.criticality")} value={(values.criticality as string) || ""} onChange={(v) => onChange("criticality", v)} options={CRITICALITIES.map((c) => ({ value: c, label: t(`allergies.criticality.${c}`) }))} allowEmpty emptyLabel={t("allergies.form.none")} />
+              <Select label={t("allergies.form.severity")} value={(values.severity as string) || ""} onChange={(v) => onChange("severity", v)} options={SEVERITIES.map((s) => ({ value: s, label: t(`allergies.severity.${s}`) }))} allowEmpty emptyLabel={t("allergies.form.none")} />
+            </div>
             <Input label={t("allergies.form.reaction")} value={(values.reaction as string) || ""} onChange={(e) => onChange("reaction", e.target.value)} />
-            <Select label={t("allergies.form.severity")} value={(values.severity as string) || ""} onChange={(v) => onChange("severity", v)} options={SEVERITIES.map((s) => ({ value: s, label: t(`allergies.severity.${s}`) }))} allowEmpty emptyLabel={t("allergies.form.none")} />
-            <Input label={t("allergies.form.onset_date")} type="date" value={(values.onset_date as string) || ""} onChange={(e) => onChange("onset_date", e.target.value)} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input label={t("allergies.form.onset_date")} type="date" value={(values.onset_date as string) || ""} onChange={(e) => onChange("onset_date", e.target.value)} />
+              <Input label={t("allergies.form.code")} value={(values.code as string) || ""} onChange={(e) => onChange("code", e.target.value)} placeholder={t("conditions.form.code_placeholder")} />
+            </div>
             <Input label={t("allergies.form.notes")} value={(values.notes as string) || ""} onChange={(e) => onChange("notes", e.target.value)} />
-            <Input label={t("allergies.form.code")} value={(values.code as string) || ""} onChange={(e) => onChange("code", e.target.value)} placeholder={t("conditions.form.code_placeholder")} />
           </>
         ),
       }}

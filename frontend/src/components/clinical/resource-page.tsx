@@ -7,6 +7,9 @@ import { ApiError } from "@/api/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Modal } from "@/components/ui/modal";
+import { PageHeader } from "@/components/ui/page-header";
 import { PatientNav } from "@/components/layout/patient-nav";
 
 interface ResourcePageConfig<TItem, TFormData> {
@@ -133,58 +136,59 @@ export function ResourcePage<TItem, TFormData>({
     <div>
       <PatientNav patientId={patientId!} />
 
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-lg text-ink font-medium font-medium">
-          {t(`${config.i18nPrefix}.title`)}
-        </h1>
-        {!showForm && items.length > 0 && (
-          <Button onClick={handleOpenAdd}>
-            {t(`${config.i18nPrefix}.add`)}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title={t(`${config.i18nPrefix}.title`)}
+        actions={
+          items.length > 0 ? (
+            <Button onClick={handleOpenAdd}>
+              {t(`${config.i18nPrefix}.add`)}
+            </Button>
+          ) : undefined
+        }
+      />
 
-      {showForm && (
-        <Card className="mb-6">
-          <h2 className="text-lg text-ink font-medium mb-5">
-            {editing
-              ? t(`${config.i18nPrefix}.form.edit_title`)
-              : t(`${config.i18nPrefix}.form.add_title`)}
-          </h2>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {config.renderFormFields(formValues as Partial<TFormData>, handleFieldChange, t)}
-            {formError && (
-              <p className="text-sm text-status-warning" role="alert">
-                {formError}
-              </p>
-            )}
-            <div className="flex gap-3 justify-end pt-3">
-              <Button type="button" variant="secondary" onClick={handleCloseForm}>
-                {t("common.cancel")}
-              </Button>
-              <Button type="submit" disabled={saveMutation.isPending}>
-                {saveMutation.isPending
-                  ? t("common.loading")
-                  : editing
-                    ? t(`${config.i18nPrefix}.form.save`)
-                    : t(`${config.i18nPrefix}.form.add`)}
-              </Button>
-            </div>
-          </form>
-        </Card>
-      )}
+      <Modal
+        open={showForm}
+        onClose={handleCloseForm}
+        title={
+          editing
+            ? t(`${config.i18nPrefix}.form.edit_title`)
+            : t(`${config.i18nPrefix}.form.add_title`)
+        }
+      >
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {config.renderFormFields(formValues as Partial<TFormData>, handleFieldChange, t)}
+          {formError && (
+            <p className="text-sm text-status-warning" role="alert">
+              {formError}
+            </p>
+          )}
+          <div className="flex gap-3 justify-end pt-3">
+            <Button variant="secondary" type="button" onClick={handleCloseForm}>
+              {t("common.cancel")}
+            </Button>
+            <Button type="submit" disabled={saveMutation.isPending}>
+              {saveMutation.isPending
+                ? t("common.loading")
+                : editing
+                  ? t(`${config.i18nPrefix}.form.save`)
+                  : t(`${config.i18nPrefix}.form.add`)}
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       {items.length === 0 && !showForm ? (
-        <Card className="text-center py-16">
-          <p className="text-secondary text-base mb-4">
-            {t(`${config.i18nPrefix}.empty`)}
-          </p>
-          <Button onClick={handleOpenAdd}>
-            {t(`${config.i18nPrefix}.add`)}
-          </Button>
-        </Card>
+        <EmptyState
+          title={t(`${config.i18nPrefix}.empty`)}
+          action={
+            <Button onClick={handleOpenAdd}>
+              {t(`${config.i18nPrefix}.add`)}
+            </Button>
+          }
+        />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {items.map((item) => (
             <Card key={config.getId(item)} className={config.cardClassName}>
               <div className="flex items-center justify-between">

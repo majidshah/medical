@@ -106,7 +106,9 @@ describe("ConditionsPage", () => {
     await user.click(screen.getByRole("button", { name: "Add condition" }));
     expect(screen.getByText("Add a condition")).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText("Condition name"), "Asthma");
+    const nameInput = screen.getByLabelText("Condition name");
+    await user.clear(nameInput);
+    await user.type(nameInput, "Asthma");
     await user.click(screen.getByRole("button", { name: "Add condition" }));
 
     expect(mockCreate).toHaveBeenCalledWith("p1", expect.objectContaining({

@@ -37,10 +37,10 @@ export function LoginPage() {
   return (
     <div className="min-h-screen bg-page flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <h1 className="font-serif text-2xl text-accent text-center mb-8">
+        <h1 className="text-xl text-ink font-medium text-center mb-8">
           {t("login.title")}
         </h1>
-        <form onSubmit={handleSubmit} className="bg-surface rounded-lg border border-border-light p-6 shadow-sm">
+        <form onSubmit={handleSubmit} className="bg-surface rounded-theme border border-border-light p-6">
           <Input
             label={t("login.email")}
             type="email"

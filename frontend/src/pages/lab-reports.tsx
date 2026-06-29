@@ -84,24 +84,26 @@ function CreateReportForm({
 
   return (
     <Card className="mb-6">
-      <h2 className="font-serif text-xl text-ink mb-4">{t("lab.form.create_report")}</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-base font-medium text-ink mb-1">{t("lab.form.category")}</label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base">
-            <option value="lab">{t("lab.category.lab")}</option>
-            <option value="imaging">{t("lab.category.imaging")}</option>
-          </select>
+      <h2 className="text-lg text-ink font-medium mb-4">{t("lab.form.create_report")}</h2>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-base text-secondary mb-1">{t("lab.form.category")}</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base">
+              <option value="lab">{t("lab.category.lab")}</option>
+              <option value="imaging">{t("lab.category.imaging")}</option>
+            </select>
+          </div>
+          <Input label={t("lab.form.report_date")} type="date" value={reportDate} onChange={(e) => setReportDate(e.target.value)} required />
+          <Input label={t("lab.form.lab_name")} value={labName} onChange={(e) => setLabName(e.target.value)} />
         </div>
-        <Input label={t("lab.form.report_date")} type="date" value={reportDate} onChange={(e) => setReportDate(e.target.value)} required />
-        <Input label={t("lab.form.lab_name")} value={labName} onChange={(e) => setLabName(e.target.value)} />
         <div>
-          <label className="block text-base font-medium text-ink mb-1">{t("lab.form.file")}</label>
+          <label className="block text-base text-secondary mb-1">{t("lab.form.file")}</label>
           <input type="file" accept=".png,.jpg,.jpeg,.pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} className="text-base" />
           <p className="text-base text-muted mt-1">{t("lab.upload.hint")}</p>
         </div>
         {error && <p className="text-base text-status-warning" role="alert">{error}</p>}
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 justify-end pt-3">
           <Button type="submit" disabled={uploading}>{uploading ? t("common.loading") : t("lab.form.create")}</Button>
           <Button type="button" variant="secondary" onClick={onClose}>{t("common.cancel")}</Button>
         </div>
@@ -194,18 +196,20 @@ function AddResultForm({
             {t("lab.form.text_value")}
           </label>
         </div>
-        {valueType === "numeric" ? (
-          <Input label={t("lab.form.value")} type="number" step="any" value={valueNumeric} onChange={(e) => setValueNumeric(e.target.value)} required />
-        ) : (
-          <Input label={t("lab.form.value")} value={valueText} onChange={(e) => setValueText(e.target.value)} required />
-        )}
-        <Input label={t("lab.form.unit")} value={unit} onChange={(e) => setUnit(e.target.value)} />
-        <Input label={t("lab.form.effective_date")} type="date" value={effectiveDate} onChange={(e) => setEffectiveDate(e.target.value)} required />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {valueType === "numeric" ? (
+            <Input label={t("lab.form.value")} type="number" step="any" value={valueNumeric} onChange={(e) => setValueNumeric(e.target.value)} required />
+          ) : (
+            <Input label={t("lab.form.value")} value={valueText} onChange={(e) => setValueText(e.target.value)} required />
+          )}
+          <Input label={t("lab.form.unit")} value={unit} onChange={(e) => setUnit(e.target.value)} />
+          <Input label={t("lab.form.effective_date")} type="date" value={effectiveDate} onChange={(e) => setEffectiveDate(e.target.value)} required />
+        </div>
         <Input label={t("lab.form.notes")} value={notes} onChange={(e) => setNotes(e.target.value)} />
         {error && <p className="text-base text-status-warning" role="alert">{error}</p>}
-        <div className="flex gap-3">
-          <Button type="submit" disabled={mutation.isPending}>{mutation.isPending ? t("common.loading") : t("lab.form.add_result_btn")}</Button>
+        <div className="flex gap-3 justify-end pt-3">
           <Button type="button" variant="secondary" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button type="submit" disabled={mutation.isPending}>{mutation.isPending ? t("common.loading") : t("lab.form.add_result_btn")}</Button>
         </div>
       </form>
     </Card>
@@ -236,7 +240,7 @@ function ReportDetailView({ patientId, reportId }: { patientId: string; reportId
     <div>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="font-serif text-xl text-ink">{t("lab.detail.title")}</h2>
+          <h2 className="text-lg text-ink font-medium">{t("lab.detail.title")}</h2>
           <p className="text-base text-muted">{report.report_date} &middot; {report.category} {report.lab_name && `· ${report.lab_name}`}</p>
         </div>
         <Button onClick={() => setAddingResult(true)}>{t("lab.form.add_result_btn")}</Button>
@@ -389,7 +393,7 @@ function LabTrendView({ patientId }: { patientId: string }) {
   return (
     <div>
       <div className="mb-4">
-        <label className="block text-base font-medium text-ink mb-1">{t("lab.trend.select_test")}</label>
+        <label className="block text-base text-secondary mb-1">{t("lab.trend.select_test")}</label>
         <select value={testKey} onChange={(e) => setTestKey(e.target.value)} className="px-3 py-2 border border-border rounded bg-surface text-ink text-base">
           <option value="">{t("lab.trend.choose")}</option>
           {tests.map((test) => <option key={test.key} value={test.key}>{test.display_name}</option>)}
@@ -455,7 +459,7 @@ export function LabReportsPage() {
     <div>
       <PatientNav patientId={patientId!} />
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-2xl text-ink">{t("lab.title")}</h1>
+        <h1 className="text-lg text-ink font-medium font-medium">{t("lab.title")}</h1>
         <div className="flex gap-3">
           <ExportButtons patientId={patientId!} />
           <Button onClick={() => setShowCreate(true)}>{t("lab.add_report")}</Button>

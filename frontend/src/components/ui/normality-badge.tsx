@@ -16,9 +16,7 @@ export function NormalityBadge({ status }: NormalityBadgeProps) {
   const c = CONFIG[status] || CONFIG.unknown;
 
   return (
-    <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-theme text-base font-medium ${c.bg} ${c.text}`}
-    >
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-theme text-xs font-medium ${c.bg} ${c.text}`}>
       <span aria-hidden="true">{c.icon}</span>
       {t(`normality.${status}`, status)}
     </span>

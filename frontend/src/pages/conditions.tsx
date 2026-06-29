@@ -29,7 +29,7 @@ function SelectField({
 }) {
   return (
     <div>
-      <label className="block text-base font-medium text-ink mb-1">{label}</label>
+      <label className="block text-base text-secondary mb-1">{label}</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -97,34 +97,36 @@ export function ConditionsPage() {
               onChange={(e) => onChange("display_name", e.target.value)}
               required
             />
-            <SelectField
-              label={t("conditions.form.clinical_status")}
-              value={(values.clinical_status as string) || "active"}
-              onChange={(v) => onChange("clinical_status", v)}
-              options={CLINICAL_STATUSES.map((s) => ({ value: s, label: t(`conditions.status.${s}`) }))}
-            />
-            <Input
-              label={t("conditions.form.onset_date")}
-              type="date"
-              value={(values.onset_date as string) || ""}
-              onChange={(e) => onChange("onset_date", e.target.value)}
-            />
-            <Input
-              label={t("conditions.form.abatement_date")}
-              type="date"
-              value={(values.abatement_date as string) || ""}
-              onChange={(e) => onChange("abatement_date", e.target.value)}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <SelectField
+                label={t("conditions.form.clinical_status")}
+                value={(values.clinical_status as string) || "active"}
+                onChange={(v) => onChange("clinical_status", v)}
+                options={CLINICAL_STATUSES.map((s) => ({ value: s, label: t(`conditions.status.${s}`) }))}
+              />
+              <Input
+                label={t("conditions.form.onset_date")}
+                type="date"
+                value={(values.onset_date as string) || ""}
+                onChange={(e) => onChange("onset_date", e.target.value)}
+              />
+              <Input
+                label={t("conditions.form.abatement_date")}
+                type="date"
+                value={(values.abatement_date as string) || ""}
+                onChange={(e) => onChange("abatement_date", e.target.value)}
+              />
+              <Input
+                label={t("conditions.form.code")}
+                value={(values.code as string) || ""}
+                onChange={(e) => onChange("code", e.target.value)}
+                placeholder={t("conditions.form.code_placeholder")}
+              />
+            </div>
             <Input
               label={t("conditions.form.notes")}
               value={(values.notes as string) || ""}
               onChange={(e) => onChange("notes", e.target.value)}
-            />
-            <Input
-              label={t("conditions.form.code")}
-              value={(values.code as string) || ""}
-              onChange={(e) => onChange("code", e.target.value)}
-              placeholder={t("conditions.form.code_placeholder")}
             />
           </>
         ),

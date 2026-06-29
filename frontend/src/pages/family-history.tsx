@@ -72,48 +72,52 @@ export function FamilyHistoryPage() {
         ),
         renderFormFields: (values, onChange, t) => (
           <>
-            <div>
-              <label className="block text-base font-medium text-ink mb-1">
-                {t("family_history.form.relationship")}
-              </label>
-              <select
-                value={(values.relationship as string) || "mother"}
-                onChange={(e) => onChange("relationship", e.target.value)}
-                className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
-              >
-                {RELATIONSHIPS.map((r) => (
-                  <option key={r} value={r}>{t(`family_history.relationship.${r}`)}</option>
-                ))}
-              </select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-base text-secondary mb-1">
+                  {t("family_history.form.relationship")}
+                </label>
+                <select
+                  value={(values.relationship as string) || "mother"}
+                  onChange={(e) => onChange("relationship", e.target.value)}
+                  className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base"
+                >
+                  {RELATIONSHIPS.map((r) => (
+                    <option key={r} value={r}>{t(`family_history.relationship.${r}`)}</option>
+                  ))}
+                </select>
+              </div>
+              <Input
+                label={t("family_history.form.condition")}
+                value={(values.condition_display_name as string) || ""}
+                onChange={(e) => onChange("condition_display_name", e.target.value)}
+                required
+              />
             </div>
-            <Input
-              label={t("family_history.form.condition")}
-              value={(values.condition_display_name as string) || ""}
-              onChange={(e) => onChange("condition_display_name", e.target.value)}
-              required
-            />
-            <Input
-              label={t("family_history.form.code")}
-              value={(values.condition_code as string) || ""}
-              onChange={(e) => onChange("condition_code", e.target.value)}
-              placeholder={t("conditions.form.code_placeholder")}
-            />
-            <Input
-              label={t("family_history.form.onset_age")}
-              type="number"
-              value={String(values.onset_age ?? "")}
-              onChange={(e) => onChange("onset_age", e.target.value)}
-            />
-            <div>
-              <label className="flex items-center gap-2 text-base cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={(values.deceased as boolean) || false}
-                  onChange={(e) => onChange("deceased", e.target.checked)}
-                  style={{ accentColor: "var(--accent)" }}
-                />
-                {t("family_history.form.deceased")}
-              </label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <Input
+                label={t("family_history.form.code")}
+                value={(values.condition_code as string) || ""}
+                onChange={(e) => onChange("condition_code", e.target.value)}
+                placeholder={t("conditions.form.code_placeholder")}
+              />
+              <Input
+                label={t("family_history.form.onset_age")}
+                type="number"
+                value={String(values.onset_age ?? "")}
+                onChange={(e) => onChange("onset_age", e.target.value)}
+              />
+              <div className="flex items-end pb-2">
+                <label className="flex items-center gap-2 text-base cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={(values.deceased as boolean) || false}
+                    onChange={(e) => onChange("deceased", e.target.checked)}
+                    style={{ accentColor: "var(--accent)" }}
+                  />
+                  {t("family_history.form.deceased")}
+                </label>
+              </div>
             </div>
             <Input
               label={t("family_history.form.notes")}

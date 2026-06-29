@@ -29,7 +29,7 @@ export function PatientSummaryPage() {
     <div>
       <PatientNav patientId={patientId!} />
       <div className="mb-8">
-        <h1 className="font-serif text-2xl text-ink">{patient.full_name}</h1>
+        <h1 className="text-lg text-ink font-medium font-medium">{patient.full_name}</h1>
         <p className="text-base text-muted">
           {patient.medical_id} &middot; {patient.gender} &middot;{" "}
           {patient.date_of_birth || ""}
@@ -39,7 +39,7 @@ export function PatientSummaryPage() {
       <div className="space-y-6">
         <Card>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-serif text-xl text-ink">
+            <h2 className="text-lg text-ink font-medium">
               {t("summary.conditions")}
               {counts.conditions > 0 && (
                 <span className="ml-2 text-base text-muted font-sans">
@@ -71,7 +71,7 @@ export function PatientSummaryPage() {
         </Card>
 
         <Card>
-          <h2 className="font-serif text-xl text-ink mb-4">
+          <h2 className="text-lg text-ink font-medium mb-4">
             {t("summary.medications")}
             {counts.medications > 0 && (
               <span className="ml-2 text-base text-muted font-sans">
@@ -103,7 +103,7 @@ export function PatientSummaryPage() {
         </Card>
 
         <Card className="border-status-warning/30">
-          <h2 className="font-serif text-xl text-ink mb-4">
+          <h2 className="text-lg text-ink font-medium mb-4">
             {t("summary.allergies")}
             {counts.allergies > 0 && (
               <span className="ml-2 text-base text-muted font-sans">
@@ -135,7 +135,7 @@ export function PatientSummaryPage() {
         </Card>
 
         <Card>
-          <h2 className="font-serif text-xl text-ink mb-4">
+          <h2 className="text-lg text-ink font-medium mb-4">
             {t("summary.recent_results")}
             {counts.reports > 0 && (
               <span className="ml-2 text-base text-muted font-sans">

@@ -74,40 +74,41 @@ function AddPatientForm({
 
   return (
     <Card className="mb-6">
-      <h2 className="font-serif text-xl text-ink mb-4">
+      <h2 className="text-lg text-ink font-medium mb-4">
         {t("patients.form.title")}
       </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <Input
           label={t("patients.form.full_name")}
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           required
         />
-        <Input
-          label={t("patients.form.date_of_birth")}
-          type="date"
-          value={dateOfBirth}
-          onChange={(e) => setDateOfBirth(e.target.value)}
-        />
-
-        <div>
-          <label className="block text-base font-medium text-ink mb-1">
-            {t("patients.form.gender")}
-          </label>
-          <select
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
-          >
-            <option value="male">{t("patients.form.gender_male")}</option>
-            <option value="female">{t("patients.form.gender_female")}</option>
-            <option value="other">{t("patients.form.gender_other")}</option>
-          </select>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            label={t("patients.form.date_of_birth")}
+            type="date"
+            value={dateOfBirth}
+            onChange={(e) => setDateOfBirth(e.target.value)}
+          />
+          <div>
+            <label className="block text-base text-secondary mb-1">
+              {t("patients.form.gender")}
+            </label>
+            <select
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base"
+            >
+              <option value="male">{t("patients.form.gender_male")}</option>
+              <option value="female">{t("patients.form.gender_female")}</option>
+              <option value="other">{t("patients.form.gender_other")}</option>
+            </select>
+          </div>
         </div>
 
         <div>
-          <label className="block text-base font-medium text-ink mb-1">
+          <label className="block text-base text-secondary mb-1">
             {t("patients.form.relationship_to_account")}
           </label>
           <select
@@ -124,7 +125,7 @@ function AddPatientForm({
         </div>
 
         <div>
-          <label className="block text-base font-medium text-ink mb-1">
+          <label className="block text-base text-secondary mb-1">
             {t("patients.form.id_type")}
           </label>
           <div className="flex gap-4">
@@ -161,7 +162,7 @@ function AddPatientForm({
           />
         ) : (
           <div>
-            <label className="block text-base font-medium text-ink mb-1">
+            <label className="block text-base text-secondary mb-1">
               {t("patients.form.guardian")}
             </label>
             {guardians.length === 0 ? (
@@ -192,7 +193,7 @@ function AddPatientForm({
           </p>
         )}
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex gap-3 justify-end pt-3">
           <Button type="submit" disabled={mutation.isPending}>
             {mutation.isPending
               ? t("common.loading")
@@ -231,7 +232,7 @@ export function PatientListPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-serif text-2xl text-ink">{t("patients.title")}</h1>
+        <h1 className="text-lg text-ink font-medium font-medium">{t("patients.title")}</h1>
         {!showForm && patients.length > 0 && (
           <Button onClick={() => setShowForm(true)}>
             {t("patients.add")}

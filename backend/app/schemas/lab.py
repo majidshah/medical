@@ -130,6 +130,7 @@ class ReferenceRangeResponse(BaseModel):
     high: float | None
     unit: str
     notes: str | None
+    needs_clinical_review: bool
 
     model_config = {"from_attributes": True}
 

@@ -1,0 +1,47 @@
+test_name,unit,range_low,range_high,range_raw,applies_to,lab,review_note
+Albumin,g/dL,3.0,5.0,3.0 - 5.0,general,IDC,
+Alkaline Phosphatase,U/L,30,115,30 - 115,general,IDC,
+Apolipoprotein B,mg/dL,66,144,66 - 144,general,IDC,
+Blood Urea,mg/dL,10,50,10 - 50,general,IDC,
+Blood Urea Nitrogen,mg/dL,6,23,6 - 23,general,IDC,
+Ceruloplasmin (Serum),mg/dL,15,30,15 - 30,general,IDC,
+Cholesterol (Total),mg/dL,,200,<200,general,IDC,upper-limit (desirable <200)
+Cholesterol/HDL Ratio,ratio,,4.97,< 4.97,general,IDC,upper-limit
+Creatinine (Serum),mg/dL,0.90,1.30,0.90 - 1.30,male,IDC,male range; female differs
+Eosinophils,%,1,6,1 - 6,general,IDC,
+Ferritin,ng/mL,22,275,22 - 275,male,IDC,male range; female differs
+Gamma GT (GGT),U/L,,55,< 55,general,IDC,upper-limit
+Globulin,g/dL,2.5,3.5,2.5 - 3.5,general,IDC,
+Glucose (Fasting),mg/dL,60,110,60 - 110,general,IDC,
+HDL Cholesterol,mg/dL,60,,> 60,general,IDC,lower-limit (desirable >60)
+Haemoglobin,g/dL,13,17,13 - 17,male,IDC,male range; female ~12-15
+HbA1c,%,,5.7,< 5.7,general,IDC,non-diabetic <5.7
+Hematocrit,%,40,50,40 - 50,male,IDC,male range; female differs
+High Sensitive CRP (hsCRP),mg/L,,1.0,< 1.0,general,IDC,low cardiac risk <1.0
+Homocysteine,umol/L,,16.2,< 16.2,general,IDC,upper-limit
+Iron (Serum),ug/dL,65,170,65 - 170,male,IDC,male range; female differs
+LDL Cholesterol,mg/dL,,130,<130,general,IDC,upper-limit (optimal)
+Lipoprotein (a),nmol/L,,75,<75,general,IDC,upper-limit
+Lymphocytes,%,20,40,20 - 40,general,IDC,
+MCH,pg,27,32,27 - 32,general,IDC,
+MCHC,g/dL,32,35,32 - 35,general,IDC,
+Monocytes,%,2,10,2 - 10,general,IDC,
+Neutrophils,%,40,80,40 - 80,general,IDC,
+RDW-CV,%,11.6,15.0,11.6 - 15.0,general,IDC,
+AST (S.G.O.T.),U/L,9,40,9 - 40,general,IDC,
+ALT (S.G.P.T.),U/L,5,55,5 - 55,general,IDC,
+Serum Copper,ug/dL,80,140,80 - 140,general,IDC,
+T3 Free,pg/mL,2.10,4.44,2.10 - 4.44,general,IDC,
+T4 Free,ng/dL,0.8,2.7,0.8 - 2.7,general,IDC,
+Total Bilirubin,mg/dL,0.1,1.1,0.1 - 1.1,general,IDC,
+Total Iron Binding Capacity (TIBC),ug/dL,250,450,250 - 450,general,IDC,
+Total Protein,g/dL,6.0,8.7,6.0 - 8.7,general,IDC,
+Transferrin Saturation,%,15,50,15 - 50,general,IDC,unit shown as ratio on report; review
+Triglycerides,mg/dL,,150,< 150,general,IDC,upper-limit (normal <150)
+Uric Acid,mg/dL,3.4,7.2,3.4 - 7.2,male,IDC,male range; female differs
+Urine Creatinine,mg/dL,40,278,40 - 278,general,IDC,
+Urine Microalbumin,mg/L,,20,< 20,general,IDC,upper-limit
+Urobilinogen,umol/L,3,25,3 - 25,general,IDC,
+Vitamin B12,pg/mL,187,883,187 - 883,general,IDC,corrected name (was 'Vitamin B')
+Vitamin D (25-OH),ng/mL,30,100,30 - 100,general,IDC,"REVIEW: report showed <20 (deficiency cutoff), not normal band; standard sufficiency ~30-100"
+Zinc Level,ug/dL,70,115,70 - 115,general,IDC,

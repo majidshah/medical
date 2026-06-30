@@ -9,6 +9,7 @@ from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
 from app.db.base import Base
+from app.db.seeds.lab_hierarchy import DEPARTMENTS, test_key_to_department_panel
 from app.db.session import get_session
 from app.main import app
 from app.models import (  # noqa: F401
@@ -19,6 +20,8 @@ from app.models import (  # noqa: F401
     EPIVaccine,
     FamilyHistory,
     Immunization,
+    LabDepartment,
+    LabPanel,
     LabReferenceRange,
     LabResult,
     LabTestCatalogue,
@@ -34,7 +37,14 @@ from app.models import (  # noqa: F401
 _engine = create_async_engine(settings.database_url, echo=False, poolclass=NullPool)
 _session_factory = async_sessionmaker(_engine, class_=AsyncSession, expire_on_commit=False)
 
-_SEED_TABLES = {"epi_vaccines", "observation_types", "lab_test_catalogue", "lab_reference_ranges"}
+_SEED_TABLES = {
+    "epi_vaccines",
+    "observation_types",
+    "lab_test_catalogue",
+    "lab_reference_ranges",
+    "lab_departments",
+    "lab_panels",
+}
 
 _OBS_TYPE_SEEDS = [
     ("smoking_status", "Smoking Status", "72166-2", "coded", None),
@@ -110,12 +120,47 @@ async def _setup_db():
             await sess.commit()
 
     async with _session_factory() as sess:
+        result = await sess.execute(text("SELECT count(*) FROM lab_departments"))
+        if result.scalar_one() == 0:
+            dept_ids: dict[str, _uuid.UUID] = {}
+            panel_ids: dict[tuple[str, str], _uuid.UUID] = {}
+            for dept_order, dept in enumerate(DEPARTMENTS):
+                did = _uuid.uuid4()
+                dept_ids[dept.key] = did
+                sess.add(
+                    LabDepartment(id=did, key=dept.key, name=dept.name, display_order=dept_order)
+                )
+                for panel_order, panel in enumerate(dept.panels):
+                    pid = _uuid.uuid4()
+                    panel_ids[(dept.key, panel.key)] = pid
+                    sess.add(
+                        LabPanel(
+                            id=pid,
+                            department_id=did,
+                            key=panel.key,
+                            name=panel.name,
+                            display_order=panel_order,
+                        )
+                    )
+            await sess.commit()
+
+    async with _session_factory() as sess:
+        dept_rows = (await sess.execute(text("SELECT id, key FROM lab_departments"))).all()
+        panel_rows = (
+            await sess.execute(text("SELECT id, department_id, key FROM lab_panels"))
+        ).all()
+        dept_id_by_key = {key: did for did, key in dept_rows}
+        dept_key_by_id = {did: key for did, key in dept_rows}
+        panel_id_by_dept_panel = {(dept_key_by_id[did], pkey): pid for pid, did, pkey in panel_rows}
+        test_key_map = test_key_to_department_panel()
+
         result = await sess.execute(text("SELECT count(*) FROM lab_test_catalogue"))
         if result.scalar_one() == 0:
             test_ids: dict[str, _uuid.UUID] = {}
             for key, name, loinc, cat, specimen, unit in _LAB_CATALOGUE_SEEDS:
                 tid = _uuid.uuid4()
                 test_ids[key] = tid
+                dept_key, panel_key = test_key_map[key]
                 sess.add(
                     LabTestCatalogue(
                         id=tid,
@@ -125,6 +170,10 @@ async def _setup_db():
                         category=cat,
                         specimen=specimen,
                         default_unit=unit,
+                        department_id=dept_id_by_key[dept_key],
+                        panel_id=(
+                            panel_id_by_dept_panel[(dept_key, panel_key)] if panel_key else None
+                        ),
                     )
                 )
             await sess.flush()
@@ -155,6 +204,12 @@ async def _clean_tables():
         for table in reversed(Base.metadata.sorted_tables):
             if table.name not in _SEED_TABLES:
                 await conn.execute(text(f"TRUNCATE TABLE {table.name} CASCADE"))
+
+
+@pytest.fixture
+async def db_session() -> AsyncGenerator[AsyncSession, None]:
+    async with _session_factory() as sess:
+        yield sess
 
 
 @pytest.fixture

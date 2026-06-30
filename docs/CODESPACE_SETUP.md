@@ -94,6 +94,9 @@ cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 cd frontend && npm run dev
 ```
 
+`vite.config.ts` binds the dev server to `0.0.0.0:5173` by default, so it's
+always reachable through Codespaces port forwarding without extra flags.
+
 Open `https://<codespace-name>-5173.app.github.dev` in your browser.
 
 ---

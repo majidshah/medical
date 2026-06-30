@@ -1,4 +1,5 @@
 from app.models.account import Account
+from app.models.account_role import AccountRole
 from app.models.allergy import Allergy
 from app.models.audit_log import AuditLog
 from app.models.condition import Condition
@@ -16,10 +17,12 @@ from app.models.observation_type import ObservationType
 from app.models.patient import Patient
 from app.models.refresh_token import RefreshToken
 from app.models.report import Report
+from app.models.role import Role
 from app.models.stored_file import StoredFile
 
 __all__ = [
     "Account",
+    "AccountRole",
     "Allergy",
     "AuditLog",
     "Condition",
@@ -37,5 +40,6 @@ __all__ = [
     "Patient",
     "RefreshToken",
     "Report",
+    "Role",
     "StoredFile",
 ]

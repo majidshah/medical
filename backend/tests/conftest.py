@@ -14,6 +14,7 @@ from app.db.session import get_session
 from app.main import app
 from app.models import (  # noqa: F401
     Account,
+    AccountRole,
     Allergy,
     AuditLog,
     Condition,
@@ -31,8 +32,10 @@ from app.models import (  # noqa: F401
     Patient,
     RefreshToken,
     Report,
+    Role,
     StoredFile,
 )
+from app.services.roles import ADMIN_ROLE_KEY, grant_role
 
 _engine = create_async_engine(settings.database_url, echo=False, poolclass=NullPool)
 _session_factory = async_sessionmaker(_engine, class_=AsyncSession, expire_on_commit=False)
@@ -44,6 +47,7 @@ _SEED_TABLES = {
     "lab_reference_ranges",
     "lab_departments",
     "lab_panels",
+    "roles",
 }
 
 _OBS_TYPE_SEEDS = [
@@ -117,6 +121,12 @@ async def _setup_db():
                         unit=unit,
                     )
                 )
+            await sess.commit()
+
+    async with _session_factory() as sess:
+        result = await sess.execute(text("SELECT count(*) FROM roles"))
+        if result.scalar_one() == 0:
+            sess.add(Role(id=_uuid.uuid4(), key=ADMIN_ROLE_KEY, name="Administrator"))
             await sess.commit()
 
     async with _session_factory() as sess:
@@ -240,6 +250,35 @@ async def auth_tokens(client: AsyncClient, registered_user: dict) -> dict:
     resp = await client.post(
         "/api/v1/auth/login",
         json={"email": "test@example.com", "password": "securepass123"},
+    )
+    assert resp.status_code == 200
+    return resp.json()
+
+
+@pytest.fixture
+async def admin_auth_tokens(client: AsyncClient) -> dict:
+    """A second, distinct account that has been granted admin — via the
+    service layer directly with granted_by_account_id=None, exactly
+    mirroring the real bootstrap CLI (scripts/grant_admin.py). There is
+    no HTTP path that could do this, by design.
+    """
+    resp = await client.post(
+        "/api/v1/auth/register",
+        json={"email": "admin@example.com", "password": "securepass123"},
+    )
+    assert resp.status_code == 201
+
+    async with _session_factory() as sess:
+        await grant_role(
+            sess,
+            target_email="admin@example.com",
+            role_key=ADMIN_ROLE_KEY,
+            granted_by_account_id=None,
+        )
+
+    resp = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "admin@example.com", "password": "securepass123"},
     )
     assert resp.status_code == 200
     return resp.json()

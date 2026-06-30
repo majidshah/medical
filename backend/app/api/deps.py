@@ -10,6 +10,7 @@ from app.core.security import decode_access_token
 from app.db.session import get_session
 from app.models.account import Account
 from app.services.auth import get_account_by_id
+from app.services.roles import is_admin
 
 _bearer_scheme = HTTPBearer(auto_error=False)
 
@@ -46,4 +47,21 @@ async def get_current_account(
     if account is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Account not found")
 
+    return account
+
+
+async def require_admin(
+    account: Annotated[Account, Depends(get_current_account)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> Account:
+    """Admin is a distinct authorization boundary layered on top of
+    get_current_account, not a substitute for it. A request reaches here
+    only after passing authentication; 403 (not 404) is correct — the
+    endpoint exists, the caller is a known account, they just lack the
+    permission. This is deliberately different from the patient-data
+    404-not-403 rule, which exists to avoid leaking whether another
+    account's data exists at all.
+    """
+    if not await is_admin(session, account.id):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
     return account

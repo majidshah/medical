@@ -17,6 +17,7 @@ from app.schemas.auth import (
 from app.services.auth import AuthError, refresh_tokens, register_account
 from app.services.auth import login as login_service
 from app.services.auth import logout as logout_service
+from app.services.roles import get_role_keys
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -72,5 +73,7 @@ async def logout(
 @router.get("/me", response_model=AccountResponse)
 async def me(
     account: Annotated[Account, Depends(get_current_account)],
-) -> Account:
-    return account
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> AccountResponse:
+    roles = await get_role_keys(session, account.id)
+    return AccountResponse(id=account.id, email=account.email, roles=sorted(roles))

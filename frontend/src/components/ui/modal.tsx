@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 interface ModalProps {
@@ -18,7 +18,6 @@ const SIZES = {
 
 export function Modal({ open, onClose, title, children, footer, size = "md" }: ModalProps) {
   const { t } = useTranslation();
-  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -40,11 +39,9 @@ export function Modal({ open, onClose, title, children, footer, size = "md" }: M
       aria-label={title}
     >
       <div
-        ref={dialogRef}
-        tabIndex={-1}
         className={`bg-surface rounded-theme border border-border-light shadow-lg w-full mx-4 ${SIZES[size]} max-h-[85vh] flex flex-col`}
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border-light shrink-0">
           <h2 className="text-lg text-ink font-medium">{title}</h2>
           <button
             onClick={onClose}
@@ -58,7 +55,7 @@ export function Modal({ open, onClose, title, children, footer, size = "md" }: M
           {children}
         </div>
         {footer && (
-          <div className="px-6 py-4 border-t border-border-light flex gap-3 justify-end">
+          <div className="px-6 py-4 border-t border-border-light flex gap-3 justify-end shrink-0">
             {footer}
           </div>
         )}

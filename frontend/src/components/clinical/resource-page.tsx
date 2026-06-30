@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -43,6 +43,7 @@ export function ResourcePage<TItem, TFormData>({
   const { t } = useTranslation();
   const { patientId } = useParams<{ patientId: string }>();
   const queryClient = useQueryClient();
+  const submitRef = useRef<HTMLButtonElement>(null);
 
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<TItem | undefined>();
@@ -155,6 +156,23 @@ export function ResourcePage<TItem, TFormData>({
             ? t(`${config.i18nPrefix}.form.edit_title`)
             : t(`${config.i18nPrefix}.form.add_title`)
         }
+        footer={
+          <>
+            <Button variant="secondary" onClick={handleCloseForm}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              onClick={() => submitRef.current?.click()}
+              disabled={saveMutation.isPending}
+            >
+              {saveMutation.isPending
+                ? t("common.loading")
+                : editing
+                  ? t(`${config.i18nPrefix}.form.save`)
+                  : t(`${config.i18nPrefix}.form.add`)}
+            </Button>
+          </>
+        }
       >
         <form onSubmit={handleSubmit} className="space-y-5">
           {config.renderFormFields(formValues as Partial<TFormData>, handleFieldChange, t)}
@@ -163,18 +181,7 @@ export function ResourcePage<TItem, TFormData>({
               {formError}
             </p>
           )}
-          <div className="flex gap-3 justify-end pt-3">
-            <Button variant="secondary" type="button" onClick={handleCloseForm}>
-              {t("common.cancel")}
-            </Button>
-            <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending
-                ? t("common.loading")
-                : editing
-                  ? t(`${config.i18nPrefix}.form.save`)
-                  : t(`${config.i18nPrefix}.form.add`)}
-            </Button>
-          </div>
+          <button ref={submitRef} type="submit" className="hidden" aria-hidden="true" tabIndex={-1} />
         </form>
       </Modal>
 

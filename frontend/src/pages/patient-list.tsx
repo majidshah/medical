@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -7,17 +7,24 @@ import { ApiError } from "@/api/client";
 import { createPatient, fetchPatients, type Patient } from "@/api/patients";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
+import { PageHeader } from "@/components/ui/page-header";
+import { FormRow } from "@/components/ui/form-row";
 
-function AddPatientForm({
+function AddPatientModal({
   patients,
+  open,
   onClose,
 }: {
   patients: Patient[];
+  open: boolean;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const submitRef = useRef<HTMLButtonElement>(null);
 
   const [fullName, setFullName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
@@ -73,10 +80,22 @@ function AddPatientForm({
   };
 
   return (
-    <Card className="mb-6">
-      <h2 className="text-lg text-ink font-medium mb-4">
-        {t("patients.form.title")}
-      </h2>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t("patients.form.title")}
+      size="lg"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            {t("patients.form.cancel")}
+          </Button>
+          <Button onClick={() => submitRef.current?.click()} disabled={mutation.isPending}>
+            {mutation.isPending ? t("common.loading") : t("patients.form.submit")}
+          </Button>
+        </>
+      }
+    >
       <form onSubmit={handleSubmit} className="space-y-5">
         <Input
           label={t("patients.form.full_name")}
@@ -84,7 +103,7 @@ function AddPatientForm({
           onChange={(e) => setFullName(e.target.value)}
           required
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <FormRow>
           <Input
             label={t("patients.form.date_of_birth")}
             type="date"
@@ -92,7 +111,7 @@ function AddPatientForm({
             onChange={(e) => setDateOfBirth(e.target.value)}
           />
           <div>
-            <label className="block text-base text-secondary mb-1">
+            <label className="block text-base font-medium text-ink mb-1">
               {t("patients.form.gender")}
             </label>
             <select
@@ -105,16 +124,16 @@ function AddPatientForm({
               <option value="other">{t("patients.form.gender_other")}</option>
             </select>
           </div>
-        </div>
+        </FormRow>
 
         <div>
-          <label className="block text-base text-secondary mb-1">
+          <label className="block text-base font-medium text-ink mb-1">
             {t("patients.form.relationship_to_account")}
           </label>
           <select
             value={relationship}
             onChange={(e) => setRelationship(e.target.value)}
-            className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
+            className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base"
           >
             <option value="self">{t("patients.form.rel_self")}</option>
             <option value="child">{t("patients.form.rel_child")}</option>
@@ -125,7 +144,7 @@ function AddPatientForm({
         </div>
 
         <div>
-          <label className="block text-base text-secondary mb-1">
+          <label className="block text-base font-medium text-ink mb-1">
             {t("patients.form.id_type")}
           </label>
           <div className="flex gap-4">
@@ -162,7 +181,7 @@ function AddPatientForm({
           />
         ) : (
           <div>
-            <label className="block text-base text-secondary mb-1">
+            <label className="block text-base font-medium text-ink mb-1">
               {t("patients.form.guardian")}
             </label>
             {guardians.length === 0 ? (
@@ -174,7 +193,7 @@ function AddPatientForm({
                 value={guardianId}
                 onChange={(e) => setGuardianId(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
+                className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base"
               >
                 <option value="">—</option>
                 {guardians.map((g) => (
@@ -193,18 +212,9 @@ function AddPatientForm({
           </p>
         )}
 
-        <div className="flex gap-3 justify-end pt-3">
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending
-              ? t("common.loading")
-              : t("patients.form.submit")}
-          </Button>
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t("patients.form.cancel")}
-          </Button>
-        </div>
+        <button ref={submitRef} type="submit" className="hidden" aria-hidden="true" tabIndex={-1} />
       </form>
-    </Card>
+    </Modal>
   );
 }
 
@@ -217,58 +227,55 @@ export function PatientListPage() {
   });
 
   if (isLoading) {
-    return (
-      <p className="text-muted text-center py-12">{t("common.loading")}</p>
-    );
+    return <p className="text-muted text-center py-12">{t("common.loading")}</p>;
   }
   if (error) {
-    return (
-      <p className="text-status-warning text-center py-12">{t("common.error")}</p>
-    );
+    return <p className="text-status-warning text-center py-12">{t("common.error")}</p>;
   }
 
   const patients = data?.items || [];
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-lg text-ink font-medium font-medium">{t("patients.title")}</h1>
-        {!showForm && patients.length > 0 && (
-          <Button onClick={() => setShowForm(true)}>
-            {t("patients.add")}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title={t("patients.title")}
+        actions={
+          patients.length > 0 ? (
+            <Button onClick={() => setShowForm(true)}>
+              {t("patients.add")}
+            </Button>
+          ) : undefined
+        }
+      />
 
-      {showForm && (
-        <AddPatientForm
-          patients={patients}
-          onClose={() => setShowForm(false)}
-        />
-      )}
+      <AddPatientModal
+        patients={patients}
+        open={showForm}
+        onClose={() => setShowForm(false)}
+      />
 
       {patients.length === 0 && !showForm ? (
-        <Card className="text-center py-12">
-          <p className="text-muted text-lg mb-4">{t("patients.empty")}</p>
-          <Button onClick={() => setShowForm(true)}>
-            {t("patients.add")}
-          </Button>
-        </Card>
+        <EmptyState
+          title={t("patients.empty")}
+          action={
+            <Button onClick={() => setShowForm(true)}>
+              {t("patients.add")}
+            </Button>
+          }
+        />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {patients.map((p) => (
             <Link key={p.id} to={`/patients/${p.id}`}>
-              <Card className="hover:border-teal/40 transition-colors cursor-pointer">
+              <Card className="hover:border-accent/40 transition-colors cursor-pointer">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="font-serif text-lg text-ink">
-                      {p.full_name}
-                    </h2>
-                    <p className="text-base text-muted">
+                    <h2 className="text-base font-medium text-ink">{p.full_name}</h2>
+                    <p className="text-sm text-muted">
                       {t("patients.medical_id")}: {p.medical_id}
                     </p>
                   </div>
-                  <span className="text-base text-muted capitalize">
+                  <span className="text-sm text-muted capitalize">
                     {p.relationship_to_account}
                   </span>
                 </div>

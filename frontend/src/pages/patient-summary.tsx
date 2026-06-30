@@ -4,8 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 
 import { fetchPatientSummary } from "@/api/patients";
 import { Card } from "@/components/ui/card";
+import { DataTable } from "@/components/ui/data-table";
 import { NormalityBadge } from "@/components/ui/normality-badge";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatCard } from "@/components/ui/stat-card";
 import { PatientNav } from "@/components/layout/patient-nav";
+import { formatDate } from "@/lib/format";
 
 export function PatientSummaryPage() {
   const { t } = useTranslation();
@@ -28,29 +32,23 @@ export function PatientSummaryPage() {
   return (
     <div>
       <PatientNav patientId={patientId!} />
-      <div className="mb-8">
-        <h1 className="text-lg text-ink font-medium font-medium">{patient.full_name}</h1>
-        <p className="text-base text-muted">
-          {patient.medical_id} &middot; {patient.gender} &middot;{" "}
-          {patient.date_of_birth || ""}
-        </p>
+      <PageHeader
+        title={patient.full_name}
+        subtitle={`${patient.medical_id} · ${patient.gender} · ${patient.date_of_birth || ""}`}
+      />
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+        <StatCard label={t("summary.conditions")} value={counts.conditions} icon="♥" tint="accent" />
+        <StatCard label={t("summary.medications")} value={counts.medications} icon="℞" tint="neutral" />
+        <StatCard label={t("summary.allergies")} value={counts.allergies} icon="⚠" tint={counts.allergies > 0 ? "warning" : "neutral"} />
+        <StatCard label={t("summary.recent_results")} value={counts.reports} icon="🔬" tint="neutral" />
       </div>
 
       <div className="space-y-6">
         <Card>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg text-ink font-medium">
-              {t("summary.conditions")}
-              {counts.conditions > 0 && (
-                <span className="ml-2 text-base text-muted font-sans">
-                  ({counts.conditions})
-                </span>
-              )}
-            </h2>
-            <Link
-              to={`/patients/${patientId}/conditions`}
-              className="text-base text-accent hover:underline"
-            >
+            <h2 className="text-lg text-ink font-medium">{t("summary.conditions")}</h2>
+            <Link to={`/patients/${patientId}/conditions`} className="text-sm text-accent hover:underline">
               {t("summary.view_all")}
             </Link>
           </div>
@@ -59,9 +57,7 @@ export function PatientSummaryPage() {
               {active_conditions.map((c) => (
                 <li key={c.id} className="flex items-center justify-between">
                   <span className="text-base">{c.display_name}</span>
-                  <span className="text-base text-muted capitalize">
-                    {c.clinical_status}
-                  </span>
+                  <span className="text-sm text-muted capitalize">{c.clinical_status}</span>
                 </li>
               ))}
             </ul>
@@ -71,29 +67,16 @@ export function PatientSummaryPage() {
         </Card>
 
         <Card>
-          <h2 className="text-lg text-ink font-medium mb-4">
-            {t("summary.medications")}
-            {counts.medications > 0 && (
-              <span className="ml-2 text-base text-muted font-sans">
-                ({counts.medications})
-              </span>
-            )}
-          </h2>
+          <h2 className="text-lg text-ink font-medium mb-4">{t("summary.medications")}</h2>
           {current_medications.length > 0 ? (
             <ul className="space-y-2">
               {current_medications.map((m) => (
                 <li key={m.id} className="flex items-center justify-between">
                   <div>
                     <span className="text-base">{m.display_name}</span>
-                    {m.dosage && (
-                      <span className="ml-2 text-base text-muted">
-                        {m.dosage}
-                      </span>
-                    )}
+                    {m.dosage && <span className="ml-2 text-sm text-muted">{m.dosage}</span>}
                   </div>
-                  {m.frequency && (
-                    <span className="text-base text-muted">{m.frequency}</span>
-                  )}
+                  {m.frequency && <span className="text-sm text-muted">{m.frequency}</span>}
                 </li>
               ))}
             </ul>
@@ -103,26 +86,17 @@ export function PatientSummaryPage() {
         </Card>
 
         <Card className="border-status-warning/30">
-          <h2 className="text-lg text-ink font-medium mb-4">
-            {t("summary.allergies")}
-            {counts.allergies > 0 && (
-              <span className="ml-2 text-base text-muted font-sans">
-                ({counts.allergies})
-              </span>
-            )}
-          </h2>
+          <h2 className="text-lg text-ink font-medium mb-4">{t("summary.allergies")}</h2>
           {allergies.length > 0 ? (
             <ul className="space-y-2">
               {allergies.map((a) => (
                 <li key={a.id} className="flex items-center justify-between">
                   <div>
                     <span className="text-base font-medium">{a.display_name}</span>
-                    <span className="ml-2 text-base text-muted capitalize">
-                      {a.category}
-                    </span>
+                    <span className="ml-2 text-sm text-muted capitalize">{a.category}</span>
                   </div>
                   {a.criticality && (
-                    <span className="text-base text-status-warning font-medium capitalize">
+                    <span className="text-sm text-status-warning font-medium capitalize">
                       {a.criticality}
                     </span>
                   )}
@@ -135,47 +109,23 @@ export function PatientSummaryPage() {
         </Card>
 
         <Card>
-          <h2 className="text-lg text-ink font-medium mb-4">
-            {t("summary.recent_results")}
-            {counts.reports > 0 && (
-              <span className="ml-2 text-base text-muted font-sans">
-                ({counts.reports} {t("summary.reports_count")})
-              </span>
-            )}
-          </h2>
-          {recent_results.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-base">
-                <thead>
-                  <tr className="border-b border-border-light text-left">
-                    <th className="pb-2 font-medium">{t("summary.table_test")}</th>
-                    <th className="pb-2 font-medium">{t("summary.table_value")}</th>
-                    <th className="pb-2 font-medium">{t("summary.table_date")}</th>
-                    <th className="pb-2 font-medium">{t("summary.table_status")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent_results.map((r) => (
-                    <tr key={r.id} className="border-b border-border-light">
-                      <td className="py-2">{r.display_name}</td>
-                      <td className="py-2 font-sans tabular-nums">
-                        {r.value_numeric ?? r.value_text ?? ""}{" "}
-                        {r.unit && (
-                          <span className="text-muted">{r.unit}</span>
-                        )}
-                      </td>
-                      <td className="py-2 text-muted">{r.effective_date}</td>
-                      <td className="py-2">
-                        <NormalityBadge status={r.normality_status} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p className="text-muted text-base">{t("summary.none_recorded")}</p>
-          )}
+          <h2 className="text-lg text-ink font-medium mb-4">{t("summary.recent_results")}</h2>
+          <DataTable
+            columns={[
+              { key: "test", header: t("summary.table_test"), render: (r) => <span className="text-base">{r.display_name}</span> },
+              { key: "value", header: t("summary.table_value"), render: (r) => (
+                <span className="font-sans tabular-nums">
+                  {r.value_numeric ?? r.value_text ?? ""}{" "}
+                  {r.unit && <span className="text-muted">{r.unit}</span>}
+                </span>
+              ), className: "font-sans tabular-nums" },
+              { key: "date", header: t("summary.table_date"), render: (r) => <span className="text-muted">{formatDate(r.effective_date)}</span> },
+              { key: "status", header: t("summary.table_status"), render: (r) => <NormalityBadge status={r.normality_status} /> },
+            ]}
+            data={recent_results}
+            getKey={(r) => r.id}
+            emptyMessage={t("summary.none_recorded")}
+          />
         </Card>
       </div>
     </div>

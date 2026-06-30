@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -20,26 +20,34 @@ import { PatientNav } from "@/components/layout/patient-nav";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { FormRow } from "@/components/ui/form-row";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
+import { PageHeader } from "@/components/ui/page-header";
+import { formatDate } from "@/lib/format";
 
 const CODED_OPTIONS: Record<string, string[]> = {
   smoking_status: ["current", "former", "never"],
   alcohol_use: ["current", "former", "never", "occasional"],
 };
 
-function ObservationForm({
+function ObservationModal({
   patientId,
   types,
   existing,
+  open,
   onClose,
 }: {
   patientId: string;
   types: ObservationType[];
   existing?: Observation;
+  open: boolean;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const submitRef = useRef<HTMLButtonElement>(null);
 
   const [typeId, setTypeId] = useState(existing?.observation_type_id || (types[0]?.id ?? ""));
   const [effectiveDate, setEffectiveDate] = useState(existing?.effective_date || "");
@@ -50,7 +58,7 @@ function ObservationForm({
   const [notes, setNotes] = useState(existing?.notes || "");
   const [error, setError] = useState("");
 
-  const selectedType = types.find((t) => t.id === typeId);
+  const selectedType = types.find((tp) => tp.id === typeId);
   const vt = selectedType?.value_type || "text";
 
   const mutation = useMutation({
@@ -88,20 +96,31 @@ function ObservationForm({
   };
 
   return (
-    <Card className="mb-6">
-      <h2 className="text-lg text-ink font-medium mb-4">
-        {existing ? t("lifestyle.form.edit_title") : t("lifestyle.form.add_title")}
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={existing ? t("lifestyle.form.edit_title") : t("lifestyle.form.add_title")}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            {t("common.cancel")}
+          </Button>
+          <Button onClick={() => submitRef.current?.click()} disabled={mutation.isPending}>
+            {mutation.isPending ? t("common.loading") : existing ? t("lifestyle.form.save") : t("lifestyle.form.add")}
+          </Button>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-5">
         {!existing && (
           <div>
-            <label className="block text-base text-secondary mb-1">
+            <label className="block text-base font-medium text-ink mb-1">
               {t("lifestyle.form.type")}
             </label>
             <select
               value={typeId}
               onChange={(e) => setTypeId(e.target.value)}
-              className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
+              className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base"
             >
               {types.map((tp) => (
                 <option key={tp.id} value={tp.id}>
@@ -111,49 +130,51 @@ function ObservationForm({
             </select>
           </div>
         )}
-        <Input
-          label={t("lifestyle.form.date")}
-          type="date"
-          value={effectiveDate}
-          onChange={(e) => setEffectiveDate(e.target.value)}
-          required
-        />
-        {vt === "numeric" && (
+        <FormRow>
           <Input
-            label={t("lifestyle.form.value_numeric")}
-            type="number"
-            step="any"
-            value={valueNumeric}
-            onChange={(e) => setValueNumeric(e.target.value)}
+            label={t("lifestyle.form.date")}
+            type="date"
+            value={effectiveDate}
+            onChange={(e) => setEffectiveDate(e.target.value)}
             required
           />
-        )}
-        {vt === "coded" && (
-          <div>
-            <label className="block text-base text-secondary mb-1">
-              {t("lifestyle.form.value_coded")}
-            </label>
-            <select
-              value={valueCode}
-              onChange={(e) => setValueCode(e.target.value)}
+          {vt === "numeric" && (
+            <Input
+              label={t("lifestyle.form.value_numeric")}
+              type="number"
+              step="any"
+              value={valueNumeric}
+              onChange={(e) => setValueNumeric(e.target.value)}
               required
-              className="w-full px-3 py-2 border border-border rounded bg-surface text-ink text-base"
-            >
-              <option value="">—</option>
-              {(CODED_OPTIONS[selectedType?.key || ""] || ["current", "former", "never"]).map((v) => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </select>
-          </div>
-        )}
-        {vt === "text" && (
-          <Input
-            label={t("lifestyle.form.value_text")}
-            value={valueText}
-            onChange={(e) => setValueText(e.target.value)}
-            required
-          />
-        )}
+            />
+          )}
+          {vt === "coded" && (
+            <div>
+              <label className="block text-base font-medium text-ink mb-1">
+                {t("lifestyle.form.value_coded")}
+              </label>
+              <select
+                value={valueCode}
+                onChange={(e) => setValueCode(e.target.value)}
+                required
+                className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base"
+              >
+                <option value="">—</option>
+                {(CODED_OPTIONS[selectedType?.key || ""] || ["current", "former", "never"]).map((v) => (
+                  <option key={v} value={v}>{v}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          {vt === "text" && (
+            <Input
+              label={t("lifestyle.form.value_text")}
+              value={valueText}
+              onChange={(e) => setValueText(e.target.value)}
+              required
+            />
+          )}
+        </FormRow>
         {vt === "numeric" && (
           <Input
             label={t("lifestyle.form.unit")}
@@ -166,17 +187,10 @@ function ObservationForm({
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
-        {error && <p className="text-base text-status-warning" role="alert">{error}</p>}
-        <div className="flex gap-3 justify-end pt-3">
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending ? t("common.loading") : existing ? t("lifestyle.form.save") : t("lifestyle.form.add")}
-          </Button>
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t("common.cancel")}
-          </Button>
-        </div>
+        {error && <p className="text-sm text-status-warning" role="alert">{error}</p>}
+        <button ref={submitRef} type="submit" className="hidden" aria-hidden="true" tabIndex={-1} />
       </form>
-    </Card>
+    </Modal>
   );
 }
 
@@ -240,27 +254,29 @@ export function LifestylePage() {
   return (
     <div>
       <PatientNav patientId={patientId!} />
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-lg text-ink font-medium font-medium">{t("lifestyle.title")}</h1>
-        <Button onClick={() => { setEditing(undefined); setShowForm(true); }}>
-          {t("lifestyle.add")}
-        </Button>
-      </div>
 
-      {showForm && (
-        <ObservationForm
-          patientId={patientId!}
-          types={typesList}
-          existing={editing}
-          onClose={handleCloseForm}
-        />
-      )}
+      <PageHeader
+        title={t("lifestyle.title")}
+        actions={
+          <Button onClick={() => { setEditing(undefined); setShowForm(true); }}>
+            {t("lifestyle.add")}
+          </Button>
+        }
+      />
+
+      <ObservationModal
+        patientId={patientId!}
+        types={typesList}
+        existing={editing}
+        open={showForm}
+        onClose={handleCloseForm}
+      />
 
       <div className="flex items-center gap-3 mb-4 flex-wrap">
         <select
           value={filterType}
           onChange={(e) => { setFilterType(e.target.value); setShowTrend(false); }}
-          className="px-3 py-2 border border-border rounded bg-surface text-ink text-base"
+          className="px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base"
         >
           <option value="">{t("lifestyle.all_types")}</option>
           {typesList.map((tp) => (
@@ -268,10 +284,7 @@ export function LifestylePage() {
           ))}
         </select>
         {filterType && (
-          <Button
-            variant="secondary"
-            onClick={() => setShowTrend(!showTrend)}
-          >
+          <Button variant="secondary" onClick={() => setShowTrend(!showTrend)}>
             {showTrend ? t("lifestyle.hide_trend") : t("lifestyle.show_trend")}
           </Button>
         )}
@@ -289,11 +302,9 @@ export function LifestylePage() {
       )}
 
       {items.length === 0 && !showForm ? (
-        <Card className="text-center py-12">
-          <p className="text-muted text-lg mb-4">{t("lifestyle.empty")}</p>
-        </Card>
+        <EmptyState title={t("lifestyle.empty")} />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {items.map((o) => (
             <Card key={o.id}>
               <div className="flex items-center justify-between">
@@ -301,12 +312,12 @@ export function LifestylePage() {
                   <h2 className="text-base font-medium text-ink">{getTypeName(o.observation_type_id)}</h2>
                   <div className="flex items-center gap-3 mt-1">
                     <span className="text-base font-sans tabular-nums">{getValue(o)}</span>
-                    <span className="text-base text-muted">{o.effective_date}</span>
+                    <span className="text-sm text-muted">{formatDate(o.effective_date)}</span>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={() => { setEditing(o); setShowForm(true); }} className="text-base text-accent hover:underline">{t("common.edit")}</button>
-                  <button onClick={() => setDeleting(o)} className="text-base text-status-warning hover:underline">{t("common.delete")}</button>
+                <div className="flex gap-3">
+                  <button onClick={() => { setEditing(o); setShowForm(true); }} className="text-xs text-secondary hover:text-accent">{t("common.edit")}</button>
+                  <button onClick={() => setDeleting(o)} className="text-xs text-secondary hover:text-status-warning">{t("common.delete")}</button>
                 </div>
               </div>
             </Card>

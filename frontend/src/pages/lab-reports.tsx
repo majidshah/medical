@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -24,21 +24,30 @@ import { PatientNav } from "@/components/layout/patient-nav";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { DataTable } from "@/components/ui/data-table";
+import { EmptyState } from "@/components/ui/empty-state";
+import { FormRow } from "@/components/ui/form-row";
 import { Input } from "@/components/ui/input";
+import { Modal } from "@/components/ui/modal";
 import { NormalityBadge } from "@/components/ui/normality-badge";
+import { PageHeader } from "@/components/ui/page-header";
+import { formatDate } from "@/lib/format";
 
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "application/pdf"];
 const MAX_SIZE = 10 * 1024 * 1024;
 
-function CreateReportForm({
+function CreateReportModal({
   patientId,
+  open,
   onClose,
 }: {
   patientId: string;
+  open: boolean;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const submitRef = useRef<HTMLButtonElement>(null);
   const [category, setCategory] = useState("lab");
   const [reportDate, setReportDate] = useState("");
   const [labName, setLabName] = useState("");
@@ -83,12 +92,23 @@ function CreateReportForm({
   };
 
   return (
-    <Card className="mb-6">
-      <h2 className="text-lg text-ink font-medium mb-4">{t("lab.form.create_report")}</h2>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t("lab.form.create_report")}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button onClick={() => submitRef.current?.click()} disabled={uploading}>
+            {uploading ? t("common.loading") : t("lab.form.create")}
+          </Button>
+        </>
+      }
+    >
       <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <FormRow cols={3}>
           <div>
-            <label className="block text-base text-secondary mb-1">{t("lab.form.category")}</label>
+            <label className="block text-base font-medium text-ink mb-1">{t("lab.form.category")}</label>
             <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base">
               <option value="lab">{t("lab.category.lab")}</option>
               <option value="imaging">{t("lab.category.imaging")}</option>
@@ -96,33 +116,33 @@ function CreateReportForm({
           </div>
           <Input label={t("lab.form.report_date")} type="date" value={reportDate} onChange={(e) => setReportDate(e.target.value)} required />
           <Input label={t("lab.form.lab_name")} value={labName} onChange={(e) => setLabName(e.target.value)} />
-        </div>
+        </FormRow>
         <div>
-          <label className="block text-base text-secondary mb-1">{t("lab.form.file")}</label>
+          <label className="block text-base font-medium text-ink mb-1">{t("lab.form.file")}</label>
           <input type="file" accept=".png,.jpg,.jpeg,.pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} className="text-base" />
-          <p className="text-base text-muted mt-1">{t("lab.upload.hint")}</p>
+          <p className="text-sm text-muted mt-1">{t("lab.upload.hint")}</p>
         </div>
-        {error && <p className="text-base text-status-warning" role="alert">{error}</p>}
-        <div className="flex gap-3 justify-end pt-3">
-          <Button type="submit" disabled={uploading}>{uploading ? t("common.loading") : t("lab.form.create")}</Button>
-          <Button type="button" variant="secondary" onClick={onClose}>{t("common.cancel")}</Button>
-        </div>
+        {error && <p className="text-sm text-status-warning" role="alert">{error}</p>}
+        <button ref={submitRef} type="submit" className="hidden" aria-hidden="true" tabIndex={-1} />
       </form>
-    </Card>
+    </Modal>
   );
 }
 
-function AddResultForm({
+function AddResultModal({
   patientId,
   reportId,
+  open,
   onClose,
 }: {
   patientId: string;
   reportId: string;
+  open: boolean;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const submitRef = useRef<HTMLButtonElement>(null);
   const [search, setSearch] = useState("");
   const [selectedTest, setSelectedTest] = useState<LabTest | null>(null);
   const [displayName, setDisplayName] = useState("");
@@ -169,13 +189,25 @@ function AddResultForm({
   });
 
   return (
-    <Card className="mb-4">
-      <h3 className="font-serif text-lg text-ink mb-3">{t("lab.form.add_result")}</h3>
-      <form onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }} className="space-y-3">
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t("lab.form.add_result")}
+      size="lg"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>{t("common.cancel")}</Button>
+          <Button onClick={() => submitRef.current?.click()} disabled={mutation.isPending}>
+            {mutation.isPending ? t("common.loading") : t("lab.form.add_result_btn")}
+          </Button>
+        </>
+      }
+    >
+      <form onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }} className="space-y-5">
         <div>
           <Input label={t("lab.form.search_test")} value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("lab.form.search_placeholder")} />
           {catalogue && catalogue.items.length > 0 && search && (
-            <div className="border border-border-light rounded mt-1 max-h-40 overflow-y-auto">
+            <div className="border border-border-light rounded-theme mt-1 max-h-40 overflow-y-auto">
               {catalogue.items.map((test) => (
                 <button key={test.id} type="button" onClick={() => selectTest(test)} className="block w-full text-left px-3 py-2 text-base hover:bg-accent-50">
                   {test.display_name} {test.loinc_code && <span className="text-muted">({test.loinc_code})</span>}
@@ -183,7 +215,7 @@ function AddResultForm({
               ))}
             </div>
           )}
-          {selectedTest && <p className="text-base text-accent mt-1">{t("lab.form.selected")}: {selectedTest.display_name}</p>}
+          {selectedTest && <p className="text-sm text-accent mt-1">{t("lab.form.selected")}: {selectedTest.display_name}</p>}
         </div>
         <Input label={t("lab.form.display_name")} value={displayName} onChange={(e) => setDisplayName(e.target.value)} required />
         <div className="flex gap-4">
@@ -196,7 +228,7 @@ function AddResultForm({
             {t("lab.form.text_value")}
           </label>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <FormRow cols={3}>
           {valueType === "numeric" ? (
             <Input label={t("lab.form.value")} type="number" step="any" value={valueNumeric} onChange={(e) => setValueNumeric(e.target.value)} required />
           ) : (
@@ -204,15 +236,12 @@ function AddResultForm({
           )}
           <Input label={t("lab.form.unit")} value={unit} onChange={(e) => setUnit(e.target.value)} />
           <Input label={t("lab.form.effective_date")} type="date" value={effectiveDate} onChange={(e) => setEffectiveDate(e.target.value)} required />
-        </div>
+        </FormRow>
         <Input label={t("lab.form.notes")} value={notes} onChange={(e) => setNotes(e.target.value)} />
-        {error && <p className="text-base text-status-warning" role="alert">{error}</p>}
-        <div className="flex gap-3 justify-end pt-3">
-          <Button type="button" variant="secondary" onClick={onClose}>{t("common.cancel")}</Button>
-          <Button type="submit" disabled={mutation.isPending}>{mutation.isPending ? t("common.loading") : t("lab.form.add_result_btn")}</Button>
-        </div>
+        {error && <p className="text-sm text-status-warning" role="alert">{error}</p>}
+        <button ref={submitRef} type="submit" className="hidden" aria-hidden="true" tabIndex={-1} />
       </form>
-    </Card>
+    </Modal>
   );
 }
 
@@ -238,20 +267,18 @@ function ReportDetailView({ patientId, reportId }: { patientId: string; reportId
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h2 className="text-lg text-ink font-medium">{t("lab.detail.title")}</h2>
-          <p className="text-base text-muted">{report.report_date} &middot; {report.category} {report.lab_name && `· ${report.lab_name}`}</p>
-        </div>
-        <Button onClick={() => setAddingResult(true)}>{t("lab.form.add_result_btn")}</Button>
-      </div>
+      <PageHeader
+        title={t("lab.detail.title")}
+        subtitle={`${formatDate(report.report_date)} · ${report.category}${report.lab_name ? ` · ${report.lab_name}` : ""}`}
+        actions={<Button onClick={() => setAddingResult(true)}>{t("lab.form.add_result_btn")}</Button>}
+      />
 
-      {addingResult && <AddResultForm patientId={patientId} reportId={reportId} onClose={() => setAddingResult(false)} />}
+      <AddResultModal patientId={patientId} reportId={reportId} open={addingResult} onClose={() => setAddingResult(false)} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {fileBlob && report.file_ref && (
           <Card>
-            <h3 className="font-serif text-lg text-ink mb-3">{t("lab.detail.file")}</h3>
+            <h3 className="text-lg text-ink font-medium mb-3">{t("lab.detail.file")}</h3>
             {report.file_ref.content_type.startsWith("image/") ? (
               <img src={fileBlob} alt={report.file_ref.original_filename} className="max-w-full rounded" />
             ) : (
@@ -262,31 +289,28 @@ function ReportDetailView({ patientId, reportId }: { patientId: string; reportId
           </Card>
         )}
         <Card>
-          <h3 className="font-serif text-lg text-ink mb-3">{t("lab.detail.results")} ({report.results.length})</h3>
-          {report.results.length > 0 ? (
-            <table className="w-full text-base">
-              <thead>
-                <tr className="border-b border-border-light text-left">
-                  <th className="pb-2 font-medium">{t("summary.table_test")}</th>
-                  <th className="pb-2 font-medium">{t("summary.table_value")}</th>
-                  <th className="pb-2 font-medium">{t("summary.table_date")}</th>
-                  <th className="pb-2 font-medium">{t("summary.table_status")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {report.results.map((r) => (
-                  <tr key={r.id} className="border-b border-border-light">
-                    <td className="py-2">{r.display_name}</td>
-                    <td className="py-2 font-sans tabular-nums">{r.value_numeric ?? r.value_text ?? ""} {r.unit && <span className="text-muted">{r.unit}</span>}</td>
-                    <td className="py-2 text-muted">{r.effective_date}</td>
-                    <td className="py-2">{r.normality && <NormalityBadge status={r.normality.status} />}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="text-muted text-base">{t("summary.none_recorded")}</p>
-          )}
+          <h3 className="text-lg text-ink font-medium mb-3">{t("lab.detail.results")} ({report.results.length})</h3>
+          <DataTable
+            columns={[
+              { key: "test", header: t("summary.table_test"), render: (r) => r.display_name },
+              {
+                key: "value",
+                header: t("summary.table_value"),
+                className: "font-sans tabular-nums",
+                render: (r) => (
+                  <>
+                    {r.value_numeric ?? r.value_text ?? ""}
+                    {r.unit && <span className="text-muted ml-1">{r.unit}</span>}
+                  </>
+                ),
+              },
+              { key: "date", header: t("summary.table_date"), render: (r) => <span className="text-muted">{formatDate(r.effective_date)}</span> },
+              { key: "status", header: t("summary.table_status"), render: (r) => r.normality ? <NormalityBadge status={r.normality.status} /> : null },
+            ]}
+            data={report.results}
+            getKey={(r) => r.id}
+            emptyMessage={t("summary.none_recorded")}
+          />
         </Card>
       </div>
     </div>
@@ -317,7 +341,7 @@ function TimelineView({ patientId }: { patientId: string }) {
   if (selectedReport) {
     return (
       <div>
-        <button onClick={() => setSelectedReport(null)} className="text-base text-accent hover:underline mb-4">
+        <button onClick={() => setSelectedReport(null)} className="text-sm text-accent hover:underline mb-4">
           &larr; {t("lab.timeline.back")}
         </button>
         <ReportDetailView patientId={patientId} reportId={selectedReport} />
@@ -332,36 +356,34 @@ function TimelineView({ patientId }: { patientId: string }) {
   return (
     <div>
       <div className="flex items-center gap-3 mb-4">
-        <select value={category} onChange={(e) => setCategory(e.target.value)} className="px-3 py-2 border border-border rounded bg-surface text-ink text-base">
+        <select value={category} onChange={(e) => setCategory(e.target.value)} className="px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base">
           <option value="">{t("lab.timeline.all")}</option>
           <option value="lab">{t("lab.category.lab")}</option>
           <option value="imaging">{t("lab.category.imaging")}</option>
         </select>
       </div>
       {items.length === 0 ? (
-        <Card className="text-center py-12">
-          <p className="text-muted text-lg">{t("lab.timeline.empty")}</p>
-        </Card>
+        <EmptyState title={t("lab.timeline.empty")} />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {items.map((entry) => (
             <div key={entry.id} onClick={() => setSelectedReport(entry.id)} className="cursor-pointer">
-            <Card className="hover:border-teal/40 transition-colors">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-base font-medium text-ink">{entry.report_date}</h3>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span className="text-base text-muted capitalize">{t(`lab.category.${entry.category}`)}</span>
-                    {entry.lab_name && <span className="text-base text-muted">{entry.lab_name}</span>}
-                    <span className="text-base text-muted">{entry.result_count} {t("lab.timeline.results")}</span>
+              <Card className="hover:border-accent/40 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-base font-medium text-ink">{formatDate(entry.report_date)}</h3>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-sm text-muted capitalize">{t(`lab.category.${entry.category}`)}</span>
+                      {entry.lab_name && <span className="text-sm text-muted">{entry.lab_name}</span>}
+                      <span className="text-sm text-muted">{entry.result_count} {t("lab.timeline.results")}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {entry.has_out_of_range && <NormalityBadge status="above_high" />}
+                    <button onClick={(e) => { e.stopPropagation(); setDeleting(entry); }} className="text-xs text-secondary hover:text-status-warning">{t("common.delete")}</button>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  {entry.has_out_of_range && <NormalityBadge status="above_high" />}
-                  <button onClick={(e) => { e.stopPropagation(); setDeleting(entry); }} className="text-base text-status-warning hover:underline">{t("common.delete")}</button>
-                </div>
-              </div>
-            </Card>
+              </Card>
             </div>
           ))}
         </div>
@@ -393,8 +415,8 @@ function LabTrendView({ patientId }: { patientId: string }) {
   return (
     <div>
       <div className="mb-4">
-        <label className="block text-base text-secondary mb-1">{t("lab.trend.select_test")}</label>
-        <select value={testKey} onChange={(e) => setTestKey(e.target.value)} className="px-3 py-2 border border-border rounded bg-surface text-ink text-base">
+        <label className="block text-base font-medium text-ink mb-1">{t("lab.trend.select_test")}</label>
+        <select value={testKey} onChange={(e) => setTestKey(e.target.value)} className="px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base">
           <option value="">{t("lab.trend.choose")}</option>
           {tests.map((test) => <option key={test.key} value={test.key}>{test.display_name}</option>)}
         </select>
@@ -444,7 +466,7 @@ function ExportButtons({ patientId }: { patientId: string }) {
       <Button variant="secondary" onClick={() => handleExport("fhir")} disabled={exporting !== null}>
         {exporting === "fhir" ? t("common.loading") : t("lab.export.fhir")}
       </Button>
-      {error && <span className="text-base text-status-warning" role="alert">{error}</span>}
+      {error && <span className="text-sm text-status-warning" role="alert">{error}</span>}
     </div>
   );
 }
@@ -458,26 +480,29 @@ export function LabReportsPage() {
   return (
     <div>
       <PatientNav patientId={patientId!} />
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-lg text-ink font-medium font-medium">{t("lab.title")}</h1>
-        <div className="flex gap-3">
-          <ExportButtons patientId={patientId!} />
-          <Button onClick={() => setShowCreate(true)}>{t("lab.add_report")}</Button>
-        </div>
-      </div>
 
-      {showCreate && <CreateReportForm patientId={patientId!} onClose={() => setShowCreate(false)} />}
+      <PageHeader
+        title={t("lab.title")}
+        actions={
+          <div className="flex gap-3">
+            <ExportButtons patientId={patientId!} />
+            <Button onClick={() => setShowCreate(true)}>{t("lab.add_report")}</Button>
+          </div>
+        }
+      />
+
+      <CreateReportModal patientId={patientId!} open={showCreate} onClose={() => setShowCreate(false)} />
 
       <div className="flex gap-1 mb-6 border-b border-border-light pb-2">
         <button
           onClick={() => setTab("timeline")}
-          className={`px-3 py-1.5 rounded text-base ${tab === "timeline" ? "bg-accent-50 text-accent font-medium" : "text-muted hover:text-ink"}`}
+          className={`px-3 py-1.5 rounded-theme text-base ${tab === "timeline" ? "bg-accent-50 text-accent font-medium" : "text-muted hover:text-ink"}`}
         >
           {t("lab.tabs.timeline")}
         </button>
         <button
           onClick={() => setTab("trends")}
-          className={`px-3 py-1.5 rounded text-base ${tab === "trends" ? "bg-accent-50 text-accent font-medium" : "text-muted hover:text-ink"}`}
+          className={`px-3 py-1.5 rounded-theme text-base ${tab === "trends" ? "bg-accent-50 text-accent font-medium" : "text-muted hover:text-ink"}`}
         >
           {t("lab.tabs.trends")}
         </button>

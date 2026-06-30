@@ -83,7 +83,7 @@ describe("LabReportsPage", () => {
       total: 1, limit: 20, offset: 0,
     });
     renderLab();
-    expect(await screen.findByText("2024-06-01")).toBeInTheDocument();
+    expect(await screen.findByText("1 Jun 2024")).toBeInTheDocument();
     expect(screen.getByText("City Lab")).toBeInTheDocument();
     expect(screen.getByText("3 results")).toBeInTheDocument();
   });

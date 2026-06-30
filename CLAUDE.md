@@ -90,7 +90,47 @@ This is a monorepo. Maintain this layout:
 
 ---
 
-## 5. Security & compliance (non-negotiable)
+## 5. Reference data & roles
+
+### Reference data is admin-configurable by design
+
+Lab reference data — departments, panels, tests, reference ranges, and lab sources — is
+modelled as EDITABLE DATA (normal tables, never enums or hardcoded values), designed to be
+managed by an admin. Specifically:
+- Departments → Panels → Tests is a data hierarchy (panel optional; one test per header).
+- Reference ranges are keyed by `applies_to` (the model accepts ANY value:
+  general/male/female/pediatric/pregnancy/…), stored as data rows, not hardcoded.
+- Each reference range carries a `lab` attribution (e.g. IDC), so per-lab ranges are
+  supported as data.
+- Reference ranges that are not clinically validated carry `needs_clinical_review = true`
+  and a `source`; the UI shows an indicative-ranges disclaimer.
+
+Build reference-data models to support admin editing. Never fabricate clinical reference
+values (ranges, LOINC codes) — store null/leave unflagged rather than invent, and flag for
+review.
+
+### Roles & authorization
+
+MedVault has more than one privilege level. The default is an ACCOUNT (sees only its own
+family's patient data, enforced via get_current_account). Above/beside it, an extensible
+ROLE/PERMISSION system governs elevated capabilities (starting with ADMIN, who manages
+global reference data). Rules:
+- Roles/permissions are a proper extensible system (roles table + permission checks), not a
+  single boolean flag — future roles (e.g. clinician/kiosk access) must fit the same model.
+- Admin (and any elevated role) is a DISTINCT authorization boundary. Admin-only endpoints
+  require an explicit admin permission check — never assume; never let account-level auth
+  stand in for admin auth.
+- Patient data remains account-scoped regardless of role. An admin manages reference data
+  (departments/panels/tests/ranges/labs), NOT other accounts' patient health records, unless
+  a specific, separately-designed and consented capability says otherwise.
+- Elevating an account to admin is itself a privileged action (seeded/controlled, not
+  self-service). Guard role assignment carefully.
+- Audit elevated actions: record admin changes to reference data (who/what/when), consistent
+  with the existing audit pattern; never log PHI.
+
+---
+
+## 6. Security & compliance (non-negotiable)
 
 Pakistan's personal data protection law is still maturing, so we build to GDPR/HIPAA-grade
 standards as the baseline. This protects users now and unblocks expansion later.
@@ -107,7 +147,7 @@ standards as the baseline. This protects users now and unblocks expansion later.
 
 ---
 
-## 6. Workflow conventions
+## 7. Workflow conventions
 
 - **Branching:** trunk-based. `main` is protected and always deployable. Work on
   short-lived `feature/<name>` branches, open a PR, merge after CI passes.
@@ -121,7 +161,7 @@ standards as the baseline. This protects users now and unblocks expansion later.
 
 ---
 
-## 7. Hard boundaries (things the human does, not you)
+## 8. Hard boundaries (things the human does, not you)
 
 - Entering real secrets/credentials/keys (you reference them by name only).
 - Creating cloud accounts, buying domains, upgrading paid tiers.
@@ -131,7 +171,7 @@ standards as the baseline. This protects users now and unblocks expansion later.
 
 ---
 
-## 8. MVP build order
+## 9. MVP build order
 
 Build in vertical slices — each slice is end-to-end (DB → API → UI → tests) and
 deployable. Suggested order:
@@ -153,7 +193,7 @@ slice before starting the next.
 
 ---
 
-## 9. Out of scope for MVP (do not build)
+## 10. Out of scope for MVP (do not build)
 
 OCR/AI extraction, direct lab integration, doctor/kiosk one-time access, AI pre-visit
 summaries, native mobile apps, Urdu translations (scaffold i18n only). These are

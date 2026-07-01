@@ -1,4 +1,4 @@
-# Codespace Local Dev Setup
+# Codespace Dev Setup
 
 All commands assume you're in `/workspaces/medical`.
 
@@ -10,24 +10,65 @@ All commands assume you're in `/workspaces/medical`.
 ./scripts/dev-start.sh
 ```
 
-This script is **idempotent** — safe to run at the start of every session, after
-a rebuild, or whenever things look broken. It:
+Run this at the start of every session, after a rebuild, or whenever things
+look broken. It is **fully idempotent** — repeat runs are safe.
 
-1. Starts PostgreSQL (if not running)
-2. Creates the `medvault` user and database (if missing), resets the password
-3. Creates `backend/.env` from template (if missing)
-4. Installs backend Python dependencies
-5. Runs `alembic upgrade head` (creates/updates all tables)
-6. Installs frontend npm dependencies (if needed)
-7. Creates `frontend/.env` from template (if missing)
-8. Prints the env values you need to set for the Codespace URLs
+### What it does
 
-After the script finishes, follow the printed instructions to set `CORS_ORIGINS`
-and `VITE_API_BASE_URL`, then start the servers.
+1. Starts PostgreSQL (skips if already running)
+2. Creates the `medvault` role and database if missing
+3. Creates `backend/.env` from the template if missing; syncs the DB password
+4. Installs backend Python dependencies (`pip install -e ".[dev]"`)
+5. Runs `alembic upgrade head`; auto-recovers if the schema is missing
+6. Installs frontend npm dependencies if `node_modules` is absent
+7. **Writes** `VITE_API_BASE_URL` and `CORS_ORIGINS` into the env files using
+   the `$CODESPACE_NAME` forwarding domain — overwrites any localhost or
+   stale Codespace value; never touches custom (non-localhost) values
+8. Makes ports **8000** and **5173** public via `gh codespace ports visibility`
+   (falls back to printed instructions if gh CLI is unavailable)
+9. Kills any stale processes on :8000 and :5173
+10. Starts uvicorn on :8000 and Vite on :5173 in the background
+11. Waits up to 30 s for both servers to respond
+12. Prints the **exact forwarded URL** to open and whether the **DB is empty**
+    (so you know to register fresh or log in)
+
+When the script finishes you get output like:
+
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Open:  https://<codespace>-5173.app.github.dev
+  API:   https://<codespace>-8000.app.github.dev/api/v1/health
+
+  DB is empty — register a new account to get started.
+
+  Logs:  tail -f /tmp/medvault-backend.log
+         tail -f /tmp/medvault-frontend.log
+  Stop:  kill <be-pid> <fe-pid>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
 
 ---
 
-## Manual steps (if you prefer)
+## After a Codespace rebuild
+
+Run `./scripts/dev-start.sh`. If the workspace volume survived, your `.env`
+files and Postgres data are intact; Alembic says "already at head." If the
+volume was wiped, the script recreates `.env` from the committed templates and
+rebuilds the schema from scratch.
+
+---
+
+## Stopping the servers
+
+```bash
+kill <be-pid> <fe-pid>    # PIDs shown in the summary
+```
+
+Or just close the terminal; the background processes die with the session.
+
+---
+
+## Manual steps (if you prefer not to use the script)
 
 ### 1. Start PostgreSQL
 
@@ -42,17 +83,11 @@ sudo su - postgres -c "psql -c \"CREATE USER medvault WITH PASSWORD 'medvault';\
 sudo su - postgres -c "psql -c \"CREATE DATABASE medvault OWNER medvault;\""
 ```
 
-If the user/db already exist, these will error harmlessly. To reset the password:
-
-```bash
-sudo su - postgres -c "psql -c \"ALTER USER medvault WITH PASSWORD 'medvault';\""
-```
-
 ### 3. Backend setup
 
 ```bash
 cd backend
-cp .env.example .env     # edit CORS_ORIGINS for your Codespace
+cp .env.example .env
 pip install -e ".[dev]"
 alembic upgrade head
 ```
@@ -61,28 +96,31 @@ alembic upgrade head
 
 ```bash
 cd frontend
-cp .env.example .env     # edit VITE_API_BASE_URL for your Codespace
+cp .env.example .env
 npm install
 ```
 
 ### 5. Configure Codespace URLs
 
-Find your codespace name:
 ```bash
-echo $CODESPACE_NAME
+echo $CODESPACE_NAME   # find your codespace name
 ```
 
-Set in `backend/.env`:
+Edit `backend/.env`:
 ```
 CORS_ORIGINS=https://<codespace-name>-5173.app.github.dev
 ```
 
-Set in `frontend/.env`:
+Edit `frontend/.env`:
 ```
 VITE_API_BASE_URL=https://<codespace-name>-8000.app.github.dev
 ```
 
-**Make port 8000 PUBLIC** in the Codespace Ports tab.
+Make ports public:
+```bash
+gh codespace ports visibility 8000:public 5173:public -c $CODESPACE_NAME
+```
+Or use the **Ports** tab in the Codespaces UI.
 
 ### 6. Start servers
 
@@ -94,21 +132,7 @@ cd backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 cd frontend && npm run dev
 ```
 
-`vite.config.ts` binds the dev server to `0.0.0.0:5173` by default, so it's
-always reachable through Codespaces port forwarding without extra flags.
-
-Open `https://<codespace-name>-5173.app.github.dev` in your browser.
-
----
-
-## After a Codespace rebuild
-
-Run `./scripts/dev-start.sh` — it handles everything. Your `.env` files survive
-if the workspace volume is preserved. If not, the script recreates them from
-the committed `.env.example` templates.
-
-**Data**: if Postgres data was wiped by the rebuild, `alembic upgrade head`
-recreates all tables (empty). If the data survived, Alembic says "already at head."
+Open `https://<codespace-name>-5173.app.github.dev`.
 
 ---
 
@@ -117,7 +141,8 @@ recreates all tables (empty). If the data survived, Alembic says "already at hea
 ```bash
 # Backend
 cd backend
-DATABASE_URL="postgresql+asyncpg://medvault:medvault@localhost:5432/medvault" python -m pytest tests/ -v
+DATABASE_URL="postgresql+asyncpg://medvault:medvault@localhost:5432/medvault" \
+  python -m pytest tests/ -v
 
 # Frontend
 cd frontend
@@ -135,8 +160,8 @@ npm test
 | `DATABASE_URL` | `postgresql+asyncpg://medvault:medvault@localhost:5432/medvault` | Async Postgres connection |
 | `JWT_SECRET_KEY` | `change-me-to-a-random-secret` | JWT signing key |
 | `CORS_ORIGINS` | `http://localhost:5173` | Comma-separated allowed origins |
-| `UPLOAD_DIR` | `./uploads` | Local file storage directory |
-| `MAX_UPLOAD_SIZE_BYTES` | `10485760` (10 MB) | Max upload file size |
+| `UPLOAD_DIR` | `./uploads` | Local file storage |
+| `MAX_UPLOAD_SIZE_BYTES` | `10485760` (10 MB) | Max upload size |
 
 ### Frontend (`frontend/.env`)
 

@@ -6,6 +6,7 @@ from app.models.condition import Condition
 from app.models.epi_vaccine import EPIVaccine
 from app.models.family_history import FamilyHistory
 from app.models.immunization import Immunization
+from app.models.lab import Lab
 from app.models.lab_department import LabDepartment
 from app.models.lab_panel import LabPanel
 from app.models.lab_reference_range import LabReferenceRange
@@ -29,6 +30,7 @@ __all__ = [
     "EPIVaccine",
     "FamilyHistory",
     "Immunization",
+    "Lab",
     "LabDepartment",
     "LabPanel",
     "LabReferenceRange",

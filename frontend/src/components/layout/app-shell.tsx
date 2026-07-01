@@ -8,7 +8,7 @@ import { useTheme } from "@/lib/theme-context";
 
 export function AppShell() {
   const { t } = useTranslation();
-  const { logout } = useAuth();
+  const { logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const { patientId } = useParams<{ patientId: string }>();
   const theme = useTheme();
@@ -83,6 +83,22 @@ export function AppShell() {
             );
           })}
         </nav>
+
+        {isAdmin && (
+          <div className="px-2 pb-2">
+            <Link
+              to="/admin/departments"
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-theme text-base transition-colors ${
+                location.pathname.startsWith("/admin")
+                  ? "bg-accent text-on-accent font-medium"
+                  : "text-on-sidebar/80 hover:bg-white/10"
+              }`}
+            >
+              <span className="text-sm" aria-hidden="true">⚙</span>
+              {t("admin.title")}
+            </Link>
+          </div>
+        )}
 
         <div className="p-3 border-t border-white/10 space-y-2">
           <div className="flex gap-1">

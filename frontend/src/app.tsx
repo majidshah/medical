@@ -2,9 +2,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { AdminRoute } from "@/lib/admin-route";
 import { AuthProvider } from "@/lib/auth-context";
 import { ProtectedRoute } from "@/lib/protected-route";
 import { ThemeProvider } from "@/lib/theme-context";
+import { AdminDepartmentsPage } from "@/pages/admin/departments";
+import { AdminLabsPage } from "@/pages/admin/labs";
+import { AdminPanelsPage } from "@/pages/admin/panels";
+import { AdminRangesPage } from "@/pages/admin/ranges";
+import { AdminTestsPage } from "@/pages/admin/tests";
 import { AllergiesPage } from "@/pages/allergies";
 import { ConditionsPage } from "@/pages/conditions";
 import { FamilyHistoryPage } from "@/pages/family-history";
@@ -67,6 +73,13 @@ export function App() {
                   path="/patients/:patientId/reports"
                   element={<LabReportsPage />}
                 />
+                <Route element={<AdminRoute />}>
+                  <Route path="/admin/departments" element={<AdminDepartmentsPage />} />
+                  <Route path="/admin/panels" element={<AdminPanelsPage />} />
+                  <Route path="/admin/tests" element={<AdminTestsPage />} />
+                  <Route path="/admin/tests/:testId/ranges" element={<AdminRangesPage />} />
+                  <Route path="/admin/labs" element={<AdminLabsPage />} />
+                </Route>
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/patients" replace />} />

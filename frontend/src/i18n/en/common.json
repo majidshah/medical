@@ -286,6 +286,18 @@
       "pdf": "Export PDF",
       "fhir": "Export FHIR",
       "error": "Export failed. Please try again."
+    },
+    "panel": {
+      "mode_single": "Single test",
+      "mode_panel": "Full panel",
+      "department": "Department",
+      "panel": "Panel",
+      "choose_dept": "Choose department…",
+      "choose_panel": "Choose panel…",
+      "test_name": "Test",
+      "value_hint": "Value (leave blank to skip)",
+      "skip_hint": "Rows left blank will be skipped.",
+      "no_values": "Enter at least one value before saving."
     }
   },
   "normality": {
@@ -314,6 +326,94 @@
     "edit": "Edit",
     "delete": "Remove",
     "cancel": "Cancel",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "save": "Save",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "admin": {
+    "title": "Admin",
+    "departments": {
+      "title": "Departments",
+      "subtitle": "The lab departments tests are organized under.",
+      "add": "Add department",
+      "add_title": "Add department",
+      "edit_title": "Edit department",
+      "empty": "No departments yet.",
+      "deactivate": "Deactivate",
+      "confirm_deactivate": "Deactivate \"{{name}}\"? It will be hidden from new assignments; existing tests and data are kept.",
+      "table": { "key": "Key", "name": "Name", "order": "Order", "status": "Status" },
+      "form": { "key": "Key", "name": "Name", "display_order": "Display order" }
+    },
+    "panels": {
+      "title": "Panels",
+      "subtitle": "Panels group related tests within a department.",
+      "add": "Add panel",
+      "add_title": "Add panel",
+      "edit_title": "Edit panel",
+      "empty": "No panels yet.",
+      "deactivate": "Deactivate",
+      "confirm_deactivate": "Deactivate \"{{name}}\"? It will be hidden from new assignments; existing tests and data are kept.",
+      "table": { "key": "Key", "name": "Name", "department": "Department", "order": "Order", "status": "Status" },
+      "form": { "key": "Key", "name": "Name", "department": "Department", "display_order": "Display order" }
+    },
+    "tests": {
+      "title": "Tests",
+      "subtitle": "The lab test catalogue. LOINC mapping is optional but recommended.",
+      "add": "Add test",
+      "add_title": "Add test",
+      "edit_title": "Edit test",
+      "empty": "No tests yet.",
+      "deactivate": "Deactivate",
+      "confirm_deactivate": "Deactivate \"{{name}}\"? It will be hidden from new reports; existing results are kept.",
+      "ranges": "Ranges",
+      "no_panel": "No panel",
+      "table": { "key": "Key", "name": "Name", "department": "Department", "panel": "Panel", "category": "Category", "status": "Status" },
+      "form": {
+        "key": "Key",
+        "display_name": "Display name",
+        "department": "Department",
+        "panel": "Panel (optional)",
+        "loinc_code": "LOINC code",
+        "category": "Category",
+        "specimen": "Specimen",
+        "default_unit": "Default unit"
+      }
+    },
+    "ranges": {
+      "title": "Reference ranges",
+      "subtitle": "Ranges for \"{{test}}\". applies_to accepts any cohort value — including \"female\".",
+      "back": "Back to tests",
+      "add": "Add range",
+      "add_title": "Add reference range",
+      "edit_title": "Edit reference range",
+      "empty": "No reference ranges yet for this test.",
+      "delete": "Delete",
+      "confirm_delete": "Delete the \"{{name}}\" range? This cannot be undone.",
+      "table": { "applies_to": "Applies to", "low": "Low", "high": "High", "unit": "Unit", "lab": "Lab", "review": "Needs review" },
+      "form": {
+        "applies_to": "Applies to",
+        "applies_to_placeholder": "e.g. female, male, general, pediatric_0_5y",
+        "low": "Low",
+        "high": "High",
+        "unit": "Unit",
+        "notes": "Notes",
+        "lab": "Lab source (optional)",
+        "no_lab": "Unattributed",
+        "needs_clinical_review": "Needs clinical review"
+      }
+    },
+    "labs": {
+      "title": "Labs",
+      "subtitle": "Diagnostic labs that reference ranges can be attributed to.",
+      "add": "Add lab",
+      "add_title": "Add lab",
+      "edit_title": "Edit lab",
+      "empty": "No labs yet.",
+      "deactivate": "Deactivate",
+      "confirm_deactivate": "Deactivate \"{{name}}\"? Existing range attributions are kept.",
+      "table": { "key": "Key", "name": "Name", "status": "Status" },
+      "form": { "key": "Key", "name": "Name" }
+    }
   }
 }

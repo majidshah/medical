@@ -14,6 +14,9 @@ class LabReferenceRange(Base):
     test_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("lab_test_catalogue.id"), index=True, nullable=False
     )
+    lab_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("labs.id"), index=True, nullable=True
+    )
     applies_to: Mapped[str] = mapped_column(Text, nullable=False)
     low: Mapped[float | None] = mapped_column(Numeric, nullable=True)
     high: Mapped[float | None] = mapped_column(Numeric, nullable=True)

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import React, { useEffect, useRef, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -14,9 +14,14 @@ import {
   getLabTrend,
   getReportDetail,
   getTimeline,
+  listDepartments,
+  listPanels,
+  listPanelTests,
   searchCatalogue,
   uploadFile,
+  type Department,
   type LabTest,
+  type Panel,
   type TimelineEntry,
 } from "@/api/lab";
 import { TrendChart } from "@/components/clinical/trend-chart";
@@ -129,6 +134,14 @@ function CreateReportModal({
   );
 }
 
+type EntryMode = "single" | "panel";
+
+interface PanelRow {
+  test: LabTest;
+  value: string;
+  unit: string;
+}
+
 function AddResultModal({
   patientId,
   reportId,
@@ -143,6 +156,11 @@ function AddResultModal({
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const submitRef = useRef<HTMLButtonElement>(null);
+
+  // mode toggle
+  const [mode, setMode] = useState<EntryMode>("single");
+
+  // ── single-test state ────────────────────────────────────────────────
   const [search, setSearch] = useState("");
   const [selectedTest, setSelectedTest] = useState<LabTest | null>(null);
   const [displayName, setDisplayName] = useState("");
@@ -152,6 +170,15 @@ function AddResultModal({
   const [unit, setUnit] = useState("");
   const [effectiveDate, setEffectiveDate] = useState("");
   const [notes, setNotes] = useState("");
+
+  // ── panel-entry state ────────────────────────────────────────────────
+  const [selectedDept, setSelectedDept] = useState<Department | null>(null);
+  const [selectedPanel, setSelectedPanel] = useState<Panel | null>(null);
+  const [panelRows, setPanelRows] = useState<PanelRow[]>([]);
+  const [panelDate, setPanelDate] = useState("");
+  const [panelNotes, setPanelNotes] = useState("");
+
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   const { data: catalogue } = useQuery({
@@ -160,6 +187,37 @@ function AddResultModal({
     enabled: search.length > 1,
   });
 
+  const { data: departments } = useQuery({
+    queryKey: ["lab-departments"],
+    queryFn: listDepartments,
+    enabled: mode === "panel",
+  });
+
+  const { data: panels } = useQuery({
+    queryKey: ["lab-panels", selectedDept?.id],
+    queryFn: () => listPanels(selectedDept!.id),
+    enabled: mode === "panel" && !!selectedDept,
+  });
+
+  const { data: panelTestList } = useQuery({
+    queryKey: ["lab-panel-tests", selectedPanel?.id],
+    queryFn: () => listPanelTests(selectedPanel!.id),
+    enabled: mode === "panel" && !!selectedPanel,
+  });
+
+  // when panel tests load, initialise the row grid
+  useEffect(() => {
+    if (panelTestList) {
+      setPanelRows(panelTestList.map((test) => ({ test, value: "", unit: test.default_unit || "" })));
+    }
+  }, [panelTestList]);
+
+  // reset panel state when dept changes
+  useEffect(() => {
+    setSelectedPanel(null);
+    setPanelRows([]);
+  }, [selectedDept]);
+
   const selectTest = (test: LabTest) => {
     setSelectedTest(test);
     setDisplayName(test.display_name);
@@ -167,7 +225,7 @@ function AddResultModal({
     setSearch("");
   };
 
-  const mutation = useMutation({
+  const singleMutation = useMutation({
     mutationFn: () =>
       createResult(patientId, reportId, {
         display_name: displayName,
@@ -188,6 +246,40 @@ function AddResultModal({
     },
   });
 
+  const handlePanelSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    const filled = panelRows.filter((r) => r.value.trim() !== "");
+    if (filled.length === 0) {
+      setError(t("lab.panel.no_values"));
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await Promise.all(
+        filled.map((r) =>
+          createResult(patientId, reportId, {
+            display_name: r.test.display_name,
+            test_id: r.test.id,
+            value_numeric: isNaN(parseFloat(r.value)) ? undefined : parseFloat(r.value),
+            unit: r.unit || undefined,
+            effective_date: panelDate,
+            notes: panelNotes || undefined,
+          }),
+        ),
+      );
+      queryClient.invalidateQueries({ queryKey: ["report-detail", patientId, reportId] });
+      queryClient.invalidateQueries({ queryKey: ["timeline", patientId] });
+      onClose();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.detail : t("lab.form.error"));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const isPending = singleMutation.isPending || submitting;
+
   return (
     <Modal
       open={open}
@@ -197,50 +289,174 @@ function AddResultModal({
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>{t("common.cancel")}</Button>
-          <Button onClick={() => submitRef.current?.click()} disabled={mutation.isPending}>
-            {mutation.isPending ? t("common.loading") : t("lab.form.add_result_btn")}
+          <Button onClick={() => submitRef.current?.click()} disabled={isPending}>
+            {isPending ? t("common.loading") : t("lab.form.add_result_btn")}
           </Button>
         </>
       }
     >
-      <form onSubmit={(e) => { e.preventDefault(); mutation.mutate(); }} className="space-y-5">
-        <div>
-          <Input label={t("lab.form.search_test")} value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("lab.form.search_placeholder")} />
-          {catalogue && catalogue.items.length > 0 && search && (
-            <div className="border border-border-light rounded-theme mt-1 max-h-40 overflow-y-auto">
-              {catalogue.items.map((test) => (
-                <button key={test.id} type="button" onClick={() => selectTest(test)} className="block w-full text-left px-3 py-2 text-base hover:bg-accent-50">
-                  {test.display_name} {test.loinc_code && <span className="text-muted">({test.loinc_code})</span>}
-                </button>
-              ))}
+      {/* mode toggle */}
+      <div className="flex gap-1 mb-5 border-b border-border-light pb-3">
+        <button
+          type="button"
+          onClick={() => { setMode("single"); setError(""); }}
+          className={`px-3 py-1.5 rounded-theme text-base ${mode === "single" ? "bg-accent-50 text-accent font-medium" : "text-muted hover:text-ink"}`}
+        >
+          {t("lab.panel.mode_single")}
+        </button>
+        <button
+          type="button"
+          onClick={() => { setMode("panel"); setError(""); }}
+          className={`px-3 py-1.5 rounded-theme text-base ${mode === "panel" ? "bg-accent-50 text-accent font-medium" : "text-muted hover:text-ink"}`}
+        >
+          {t("lab.panel.mode_panel")}
+        </button>
+      </div>
+
+      {mode === "single" && (
+        <form onSubmit={(e) => { e.preventDefault(); singleMutation.mutate(); }} className="space-y-5">
+          <div>
+            <Input label={t("lab.form.search_test")} value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("lab.form.search_placeholder")} />
+            {catalogue && catalogue.items.length > 0 && search && (
+              <div className="border border-border-light rounded-theme mt-1 max-h-40 overflow-y-auto">
+                {catalogue.items.map((test) => (
+                  <button key={test.id} type="button" onClick={() => selectTest(test)} className="block w-full text-left px-3 py-2 text-base hover:bg-accent-50">
+                    {test.display_name} {test.loinc_code && <span className="text-muted">({test.loinc_code})</span>}
+                  </button>
+                ))}
+              </div>
+            )}
+            {selectedTest && <p className="text-sm text-accent mt-1">{t("lab.form.selected")}: {selectedTest.display_name}</p>}
+          </div>
+          <Input label={t("lab.form.display_name")} value={displayName} onChange={(e) => setDisplayName(e.target.value)} required />
+          <div className="flex gap-4">
+            <label className="flex items-center gap-2 text-base cursor-pointer">
+              <input type="radio" checked={valueType === "numeric"} onChange={() => setValueType("numeric")} style={{ accentColor: "var(--accent)" }} />
+              {t("lab.form.numeric")}
+            </label>
+            <label className="flex items-center gap-2 text-base cursor-pointer">
+              <input type="radio" checked={valueType === "text"} onChange={() => setValueType("text")} style={{ accentColor: "var(--accent)" }} />
+              {t("lab.form.text_value")}
+            </label>
+          </div>
+          <FormRow cols={3}>
+            {valueType === "numeric" ? (
+              <Input label={t("lab.form.value")} type="number" step="any" value={valueNumeric} onChange={(e) => setValueNumeric(e.target.value)} required />
+            ) : (
+              <Input label={t("lab.form.value")} value={valueText} onChange={(e) => setValueText(e.target.value)} required />
+            )}
+            <Input label={t("lab.form.unit")} value={unit} onChange={(e) => setUnit(e.target.value)} />
+            <Input label={t("lab.form.effective_date")} type="date" value={effectiveDate} onChange={(e) => setEffectiveDate(e.target.value)} required />
+          </FormRow>
+          <Input label={t("lab.form.notes")} value={notes} onChange={(e) => setNotes(e.target.value)} />
+          {error && <p className="text-sm text-status-warning" role="alert">{error}</p>}
+          <button ref={submitRef} type="submit" className="hidden" aria-hidden="true" tabIndex={-1} />
+        </form>
+      )}
+
+      {mode === "panel" && (
+        <form onSubmit={handlePanelSubmit} className="space-y-5">
+          {/* Dept → Panel selectors */}
+          <FormRow cols={2}>
+            <div>
+              <label className="block text-base font-medium text-ink mb-1">{t("lab.panel.department")}</label>
+              <select
+                value={selectedDept?.id || ""}
+                onChange={(e) => {
+                  const dept = departments?.find((d) => d.id === e.target.value) || null;
+                  setSelectedDept(dept);
+                }}
+                className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base"
+              >
+                <option value="">{t("lab.panel.choose_dept")}</option>
+                {departments?.map((d) => (
+                  <option key={d.id} value={d.id}>{d.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-base font-medium text-ink mb-1">{t("lab.panel.panel")}</label>
+              <select
+                value={selectedPanel?.id || ""}
+                disabled={!selectedDept}
+                onChange={(e) => {
+                  const panel = panels?.find((p) => p.id === e.target.value) || null;
+                  setSelectedPanel(panel);
+                }}
+                className="w-full px-3 py-2 border border-border rounded-theme bg-surface text-ink text-base disabled:opacity-50"
+              >
+                <option value="">{t("lab.panel.choose_panel")}</option>
+                {panels?.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+          </FormRow>
+
+          {/* Shared date + notes */}
+          <FormRow cols={2}>
+            <Input
+              label={t("lab.form.effective_date")}
+              type="date"
+              value={panelDate}
+              onChange={(e) => setPanelDate(e.target.value)}
+              required
+            />
+            <Input
+              label={t("lab.form.notes")}
+              value={panelNotes}
+              onChange={(e) => setPanelNotes(e.target.value)}
+            />
+          </FormRow>
+
+          {/* Test grid */}
+          {selectedPanel && panelRows.length === 0 && (
+            <p className="text-sm text-muted">{t("common.loading")}</p>
+          )}
+          {panelRows.length > 0 && (
+            <div className="border border-border-light rounded-theme overflow-hidden">
+              <div className="grid grid-cols-[1fr_10rem_8rem] gap-px bg-border-light text-sm font-medium text-muted px-3 py-2">
+                <span>{t("lab.panel.test_name")}</span>
+                <span>{t("lab.panel.value_hint")}</span>
+                <span>{t("lab.form.unit")}</span>
+              </div>
+              <div className="divide-y divide-border-light">
+                {panelRows.map((row, i) => (
+                  <div key={row.test.id} className="grid grid-cols-[1fr_10rem_8rem] gap-3 items-center px-3 py-2">
+                    <span className="text-base text-ink">{row.test.display_name}</span>
+                    <input
+                      type="number"
+                      step="any"
+                      placeholder="—"
+                      value={row.value}
+                      onChange={(e) => {
+                        const next = [...panelRows];
+                        next[i] = { ...next[i], value: e.target.value };
+                        setPanelRows(next);
+                      }}
+                      className="w-full px-2 py-1.5 border border-border rounded-theme bg-surface text-ink text-base tabular-nums"
+                    />
+                    <input
+                      type="text"
+                      value={row.unit}
+                      onChange={(e) => {
+                        const next = [...panelRows];
+                        next[i] = { ...next[i], unit: e.target.value };
+                        setPanelRows(next);
+                      }}
+                      className="w-full px-2 py-1.5 border border-border rounded-theme bg-surface text-ink text-base"
+                    />
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted px-3 py-2 border-t border-border-light">{t("lab.panel.skip_hint")}</p>
             </div>
           )}
-          {selectedTest && <p className="text-sm text-accent mt-1">{t("lab.form.selected")}: {selectedTest.display_name}</p>}
-        </div>
-        <Input label={t("lab.form.display_name")} value={displayName} onChange={(e) => setDisplayName(e.target.value)} required />
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 text-base cursor-pointer">
-            <input type="radio" checked={valueType === "numeric"} onChange={() => setValueType("numeric")} style={{ accentColor: "var(--accent)" }} />
-            {t("lab.form.numeric")}
-          </label>
-          <label className="flex items-center gap-2 text-base cursor-pointer">
-            <input type="radio" checked={valueType === "text"} onChange={() => setValueType("text")} style={{ accentColor: "var(--accent)" }} />
-            {t("lab.form.text_value")}
-          </label>
-        </div>
-        <FormRow cols={3}>
-          {valueType === "numeric" ? (
-            <Input label={t("lab.form.value")} type="number" step="any" value={valueNumeric} onChange={(e) => setValueNumeric(e.target.value)} required />
-          ) : (
-            <Input label={t("lab.form.value")} value={valueText} onChange={(e) => setValueText(e.target.value)} required />
-          )}
-          <Input label={t("lab.form.unit")} value={unit} onChange={(e) => setUnit(e.target.value)} />
-          <Input label={t("lab.form.effective_date")} type="date" value={effectiveDate} onChange={(e) => setEffectiveDate(e.target.value)} required />
-        </FormRow>
-        <Input label={t("lab.form.notes")} value={notes} onChange={(e) => setNotes(e.target.value)} />
-        {error && <p className="text-sm text-status-warning" role="alert">{error}</p>}
-        <button ref={submitRef} type="submit" className="hidden" aria-hidden="true" tabIndex={-1} />
-      </form>
+
+          {error && <p className="text-sm text-status-warning" role="alert">{error}</p>}
+          <button ref={submitRef} type="submit" className="hidden" aria-hidden="true" tabIndex={-1} />
+        </form>
+      )}
     </Modal>
   );
 }

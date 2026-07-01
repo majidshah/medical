@@ -4,6 +4,8 @@ from datetime import date
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.lab_department import LabDepartment
+from app.models.lab_panel import LabPanel
 from app.models.lab_reference_range import LabReferenceRange
 from app.models.lab_result import LabResult
 from app.models.lab_test_catalogue import LabTestCatalogue
@@ -298,6 +300,38 @@ async def list_catalogue(
     items = list(result.scalars().all())
     total = (await session.execute(count_q)).scalar_one()
     return items, total
+
+
+async def list_browse_departments(session: AsyncSession) -> list[LabDepartment]:
+    result = await session.execute(
+        select(LabDepartment)
+        .where(LabDepartment.is_active.is_(True))
+        .order_by(LabDepartment.display_order)
+    )
+    return list(result.scalars().all())
+
+
+async def list_browse_panels(session: AsyncSession, department_id: uuid.UUID) -> list[LabPanel]:
+    result = await session.execute(
+        select(LabPanel)
+        .where(LabPanel.department_id == department_id, LabPanel.is_active.is_(True))
+        .order_by(LabPanel.display_order)
+    )
+    return list(result.scalars().all())
+
+
+async def list_tests_for_panel(
+    session: AsyncSession, panel_id: uuid.UUID
+) -> list[LabTestCatalogue]:
+    result = await session.execute(
+        select(LabTestCatalogue)
+        .where(
+            LabTestCatalogue.panel_id == panel_id,
+            LabTestCatalogue.is_active.is_(True),
+        )
+        .order_by(LabTestCatalogue.display_name)
+    )
+    return list(result.scalars().all())
 
 
 async def get_catalogue_detail(

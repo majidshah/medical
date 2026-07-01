@@ -10,6 +10,21 @@ export interface LabTest {
   default_unit: string | null;
 }
 
+export interface Department {
+  id: string;
+  key: string;
+  name: string;
+  display_order: number;
+}
+
+export interface Panel {
+  id: string;
+  key: string;
+  name: string;
+  department_id: string;
+  display_order: number;
+}
+
 export interface ReferenceRange {
   id: string;
   test_id: string;
@@ -122,6 +137,18 @@ export interface LabTrendResponse {
   range_high: number | null;
   range_unit: string | null;
   points: LabTrendPoint[];
+}
+
+export async function listDepartments(): Promise<Department[]> {
+  return api<Department[]>("/api/v1/lab-catalogue/departments");
+}
+
+export async function listPanels(departmentId: string): Promise<Panel[]> {
+  return api<Panel[]>(`/api/v1/lab-catalogue/departments/${departmentId}/panels`);
+}
+
+export async function listPanelTests(panelId: string): Promise<LabTest[]> {
+  return api<LabTest[]>(`/api/v1/lab-catalogue/panels/${panelId}/tests`);
 }
 
 export async function searchCatalogue(params?: {

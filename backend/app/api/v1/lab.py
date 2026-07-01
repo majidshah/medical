@@ -10,6 +10,7 @@ from app.db.session import get_session
 from app.fhir.observation import to_fhir
 from app.models.account import Account
 from app.schemas.lab import (
+    DepartmentBrowseResponse,
     EnrichedReportDetailResponse,
     EnrichedResultResponse,
     LabTestDetailResponse,
@@ -18,6 +19,7 @@ from app.schemas.lab import (
     LabTrendPoint,
     LabTrendResponse,
     NormalityResponse,
+    PanelBrowseResponse,
     ReferenceRangeResponse,
     ReportCreate,
     ReportListResponse,
@@ -41,9 +43,12 @@ from app.services.lab import (
     get_result,
     get_result_normality,
     get_timeline,
+    list_browse_departments,
+    list_browse_panels,
     list_catalogue,
     list_reports,
     list_results_for_report,
+    list_tests_for_panel,
     soft_delete_report,
     soft_delete_result,
     update_report,
@@ -322,6 +327,41 @@ async def list_catalogue_endpoint(
         limit=limit,
         offset=offset,
     )
+
+
+@router.get("/lab-catalogue/departments", response_model=list[DepartmentBrowseResponse])
+async def list_departments_endpoint(
+    _account: Annotated[Account, Depends(get_current_account)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[DepartmentBrowseResponse]:
+    items = await list_browse_departments(session)
+    return [DepartmentBrowseResponse.model_validate(d) for d in items]
+
+
+@router.get(
+    "/lab-catalogue/departments/{department_id}/panels",
+    response_model=list[PanelBrowseResponse],
+)
+async def list_panels_endpoint(
+    department_id: uuid.UUID,
+    _account: Annotated[Account, Depends(get_current_account)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[PanelBrowseResponse]:
+    items = await list_browse_panels(session, department_id)
+    return [PanelBrowseResponse.model_validate(p) for p in items]
+
+
+@router.get(
+    "/lab-catalogue/panels/{panel_id}/tests",
+    response_model=list[LabTestResponse],
+)
+async def list_panel_tests_endpoint(
+    panel_id: uuid.UUID,
+    _account: Annotated[Account, Depends(get_current_account)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> list[LabTestResponse]:
+    items = await list_tests_for_panel(session, panel_id)
+    return [LabTestResponse.model_validate(t) for t in items]
 
 
 @router.get("/lab-catalogue/{test_id}", response_model=LabTestDetailResponse)

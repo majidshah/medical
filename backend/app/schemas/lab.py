@@ -130,12 +130,32 @@ class ReferenceRangeResponse(BaseModel):
     high: float | None
     unit: str
     notes: str | None
+    needs_clinical_review: bool
 
     model_config = {"from_attributes": True}
 
 
 class LabTestDetailResponse(LabTestResponse):
     reference_ranges: list[ReferenceRangeResponse]
+
+
+class DepartmentBrowseResponse(BaseModel):
+    id: uuid.UUID
+    key: str
+    name: str
+    display_order: int
+
+    model_config = {"from_attributes": True}
+
+
+class PanelBrowseResponse(BaseModel):
+    id: uuid.UUID
+    key: str
+    name: str
+    department_id: uuid.UUID
+    display_order: int
+
+    model_config = {"from_attributes": True}
 
 
 class LabTestListResponse(BaseModel):

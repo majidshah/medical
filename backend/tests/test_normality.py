@@ -119,6 +119,40 @@ class TestEvaluate:
         )
         assert r.status == "above_high"
 
+    def test_one_sided_range_low_only_in_range(self):
+        # e.g. HDL Cholesterol: "> 60" desirable, no upper bound.
+        r = evaluate(
+            value_numeric=65,
+            value_text=None,
+            result_unit="mg/dL",
+            range_low=60,
+            range_high=None,
+            range_unit="mg/dL",
+        )
+        assert r.status == "in_range"
+
+    def test_one_sided_range_low_only_at_boundary(self):
+        r = evaluate(
+            value_numeric=60,
+            value_text=None,
+            result_unit="mg/dL",
+            range_low=60,
+            range_high=None,
+            range_unit="mg/dL",
+        )
+        assert r.status == "in_range"
+
+    def test_one_sided_range_below_low(self):
+        r = evaluate(
+            value_numeric=45,
+            value_text=None,
+            result_unit="mg/dL",
+            range_low=60,
+            range_high=None,
+            range_unit="mg/dL",
+        )
+        assert r.status == "below_low"
+
 
 class TestSelectRange:
     def test_gender_match(self):

@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import ForeignKey, Numeric, Text
+from sqlalchemy import Boolean, ForeignKey, Numeric, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -14,8 +14,12 @@ class LabReferenceRange(Base):
     test_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("lab_test_catalogue.id"), index=True, nullable=False
     )
+    lab_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("labs.id"), index=True, nullable=True
+    )
     applies_to: Mapped[str] = mapped_column(Text, nullable=False)
     low: Mapped[float | None] = mapped_column(Numeric, nullable=True)
     high: Mapped[float | None] = mapped_column(Numeric, nullable=True)
     unit: Mapped[str] = mapped_column(Text, nullable=False)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    needs_clinical_review: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

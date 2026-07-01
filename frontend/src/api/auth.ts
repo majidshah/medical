@@ -6,9 +6,10 @@ interface TokenResponse {
   token_type: string;
 }
 
-interface AccountResponse {
+export interface AccountResponse {
   id: string;
   email: string;
+  roles: string[];
 }
 
 export async function login(

@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.v1.admin import router as admin_router
+from app.api.v1.admin_catalogue import router as admin_catalogue_router
 from app.api.v1.allergies import router as allergies_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.conditions import router as conditions_router
@@ -42,3 +44,5 @@ app.include_router(lab_router, prefix="/api/v1")
 app.include_router(summary_router, prefix="/api/v1")
 app.include_router(export_router, prefix="/api/v1")
 app.include_router(preferences_router, prefix="/api/v1")
+app.include_router(admin_router, prefix="/api/v1")
+app.include_router(admin_catalogue_router, prefix="/api/v1")

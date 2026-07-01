@@ -30,5 +30,6 @@ class LogoutRequest(BaseModel):
 class AccountResponse(BaseModel):
     id: uuid.UUID
     email: str
+    roles: list[str] = []
 
     model_config = {"from_attributes": True}

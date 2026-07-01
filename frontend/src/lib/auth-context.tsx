@@ -9,7 +9,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
-import { login as apiLogin, register as apiRegister } from "@/api/auth";
+import { getMe, login as apiLogin, register as apiRegister } from "@/api/auth";
 import {
   clearTokens,
   getAccessToken,
@@ -21,6 +21,9 @@ import { useTheme } from "@/lib/theme-context";
 interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
+  roles: string[];
+  rolesLoaded: boolean;
+  isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -33,17 +36,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => !!getAccessToken(),
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [roles, setRoles] = useState<string[]>([]);
+  const [rolesLoaded, setRolesLoaded] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const theme = useTheme();
 
-  useEffect(() => {
-    setIsAuthenticated(!!getAccessToken());
+  const loadRoles = useCallback(async () => {
+    try {
+      const me = await getMe();
+      setRoles(me.roles);
+    } catch {
+      setRoles([]);
+    } finally {
+      setRolesLoaded(true);
+    }
   }, []);
+
+  useEffect(() => {
+    const authed = !!getAccessToken();
+    setIsAuthenticated(authed);
+    if (authed) void loadRoles();
+    else setRolesLoaded(true);
+  }, [loadRoles]);
 
   useEffect(() => {
     setOnAuthFailure(() => {
       setIsAuthenticated(false);
+      setRoles([]);
+      setRolesLoaded(true);
       queryClient.clear();
       theme.resetToDefaults();
       navigate("/login");
@@ -56,11 +77,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const tokens = await apiLogin(email, password);
       setTokens(tokens.access_token, tokens.refresh_token);
       setIsAuthenticated(true);
-      await theme.loadFromAccount();
+      await Promise.all([theme.loadFromAccount(), loadRoles()]);
     } finally {
       setIsLoading(false);
     }
-  }, [theme]);
+  }, [theme, loadRoles]);
 
   const register = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
@@ -69,22 +90,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const tokens = await apiLogin(email, password);
       setTokens(tokens.access_token, tokens.refresh_token);
       setIsAuthenticated(true);
-      await theme.loadFromAccount();
+      await Promise.all([theme.loadFromAccount(), loadRoles()]);
     } finally {
       setIsLoading(false);
     }
-  }, [theme]);
+  }, [theme, loadRoles]);
 
   const logout = useCallback(() => {
     clearTokens();
     setIsAuthenticated(false);
+    setRoles([]);
+    setRolesLoaded(true);
     queryClient.clear();
     theme.resetToDefaults();
   }, [queryClient, theme]);
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, isLoading, login, register, logout }}
+      value={{
+        isAuthenticated,
+        isLoading,
+        roles,
+        rolesLoaded,
+        isAdmin: roles.includes("admin"),
+        login,
+        register,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
